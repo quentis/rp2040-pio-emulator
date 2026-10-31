@@ -1,0 +1,9 @@
+{
+  "name": "set_pins_toggle",
+  "description": "Toggle one pin with SET PINS every cycle, wrapping at the end of the program.",
+  "opcodes": [57345, 57344],
+  "cycles": 6,
+  "observed_pins": [0],
+  "pin_directions": 1,
+  "config": {"set_base": 0, "set_count": 1}
+}

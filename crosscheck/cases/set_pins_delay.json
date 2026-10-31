@@ -1,0 +1,9 @@
+{
+  "name": "set_pins_delay",
+  "description": "SET PINS with delay cycles: the pin keeps its new value for the whole delay.",
+  "opcodes": [58113, 57600],
+  "cycles": 10,
+  "observed_pins": [0],
+  "pin_directions": 1,
+  "config": {"set_base": 0, "set_count": 1}
+}

@@ -1,0 +1,9 @@
+{
+  "name": "side_set_delay",
+  "description": "NOP with a one-bit side-set and delay: the side-set applies on the first cycle of the instruction and holds through its delay.",
+  "opcodes": [45378, 41026],
+  "cycles": 6,
+  "observed_pins": [0],
+  "pin_directions": 1,
+  "config": {"side_set_base": 0, "side_set_count": 1}
+}
