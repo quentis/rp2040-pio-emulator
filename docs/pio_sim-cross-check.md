@@ -24,6 +24,23 @@ Outside IRQ, several pioemu behaviours deviate from the datasheet (`MOV` bit-rev
 delay after a no-op `PULL IFEMPTY`/`PUSH IFFULL`, `PULL` with autopull, `JMP !OSRE` threshold, background autopull,
 `MOV STATUS`). pio_sim has its own deviations (side-set priority, `OUT_COUNT`, `wait ... irq prev|next`).
 
+## Status
+
+The tables below describe `dev` at the commit named above and have not been rewritten. Since then
+pioemu was changed to fix the findings marked ✗ in the "Everything else" table (see the changelog).
+Each fix was checked against a Pico 2, except the pin wrapping: the Pico 2 has no GPIO 30 or 31.
+
+- fixed: `MOV` bit-reverse (D1), `MOV PINS` mapping (D2), the delay of a no-op `PULL IFEMPTY` /
+  `PUSH IFFULL` (D3, D4), `PULL` with autopull (D5), `JMP !OSRE` threshold (D6), `MOV STATUS`,
+  `OUT EXEC` and `MOV EXEC` (D7), background autopull (D10), `IN_BASE` for `IN`, `MOV` and
+  `WAIT PIN` (D9), pin ranges wrapping after GPIO 31, and the `PULL IFEMPTY` / `PUSH IFFULL`
+  thresholds;
+- found on the hardware and fixed: `wrap_top=0`, the autopush stall one `IN` too late, and the
+  extra cycle that follows an autopull refill;
+- still open: flags changed from outside a running program and the `WAIT IRQ` decoding (I3 - I5),
+  `SIDE_PINDIR`, the input synchroniser (not observable at the clock speed of the cross-check),
+  the `irq_handler` behaviour on a stalled instruction (I4) and the disassembler problems.
+
 ## How this was checked
 
 - Both implementations were read in full and compared with the datasheet text.
