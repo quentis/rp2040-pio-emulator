@@ -235,3 +235,16 @@ def test_mov_with_the_reserved_operation_ends_the_emulation():
     opcode = 0xA03A  # mov x, <reserved operation 3> y
 
     assert list(emulate([opcode], stop_when=clock_cycles_reached(1))) == []
+
+
+def test_mov_pins_writes_the_out_pin_group():
+    opcode = 0xA001  # mov pins, x
+
+    _, new_state = emulate_single_instruction(
+        opcode,
+        initial_state=State(x_register=0xFFFF_FFFD, pin_values=0x0000_0003),
+        out_base=10,
+        out_count=3,
+    )
+
+    assert new_state.pin_values == 0x0000_0003 | (0b101 << 10)

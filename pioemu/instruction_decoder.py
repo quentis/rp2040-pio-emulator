@@ -168,7 +168,7 @@ class InstructionDecoder:
         self.mov_destinations: List[
             Callable[[Callable[[State], int], State], State] | None
         ] = [
-            partial(write_to_pins, 0, 32),
+            partial(write_to_pins, self.out_base, self.out_count),
             write_to_x,
             write_to_y,
             None,
