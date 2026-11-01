@@ -18,6 +18,8 @@ Discovery (via [dwfpy](https://dwfpy.readthedocs.io)), and compares per-cycle pi
 python -m pytest crosscheck
 ```
 
+Wiring and equipment are described in [HARDWARE.md](HARDWARE.md).
+
 ## Not done yet
 
 - Pico 2 firmware that loads a case over USB/UART, configures the state machine and runs it.
