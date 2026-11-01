@@ -23,6 +23,7 @@ from .conditions import (
     input_shift_register_full,
     negate,
     output_shift_register_empty,
+    output_shift_register_threshold_reached,
     x_register_equals_zero,
     x_register_not_equal_to_y_register,
     x_register_not_equal_to_zero,
@@ -88,6 +89,7 @@ class InstructionDecoder:
         set_count: int,
         jmp_pin: int,
         *,
+        pull_threshold: int = 32,
         irq_handler: Optional[Callable[[int, State], State]] = None,
         irq_flags: Optional[List[int]] = None,
     ):
@@ -108,6 +110,9 @@ class InstructionDecoder:
             Number of consecutive pins to write for SET instructions.
         jmp_pin : int
             Pin that determines the branch taken by JMP PIN instructions.
+        pull_threshold : int
+            Number of bits shifted out of the Output Shift Register (OSR) before it counts as
+            empty for the purposes of JMP !OSRE.
         """
 
         self.shift_isr_method = shift_isr_method
@@ -140,7 +145,7 @@ class InstructionDecoder:
             y_register_not_equal_to_zero,
             x_register_not_equal_to_y_register,
             partial(gpio_high, jmp_pin),
-            negate(output_shift_register_empty),
+            negate(partial(output_shift_register_threshold_reached, pull_threshold)),
         ]
 
         self.in_sources: List[Callable[[State], int] | None] = [

@@ -139,3 +139,26 @@ def test_jump_on_output_shift_register_state(
     )
 
     assert new_state.program_counter == expected_program_counter
+
+
+@pytest.mark.parametrize(
+    "shift_count, expected_program_counter",
+    [
+        pytest.param(15, 2, id="below the pull threshold the OSR is not empty"),
+        pytest.param(16, 1, id="at the pull threshold the OSR is empty"),
+        pytest.param(20, 1, id="above the pull threshold the OSR is empty"),
+    ],
+)
+def test_jump_on_output_shift_register_state_respects_the_pull_threshold(
+    shift_count: int, expected_program_counter: int
+):
+    _, new_state = next(
+        emulate(
+            [0x00E2, Opcodes.nop()],  # jmp !osre, 2
+            initial_state=State(output_shift_register=ShiftRegister(0, shift_count)),
+            stop_when=clock_cycles_reached(1),
+            pull_threshold=16,
+        )
+    )
+
+    assert new_state.program_counter == expected_program_counter

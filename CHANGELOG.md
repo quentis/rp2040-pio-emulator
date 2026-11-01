@@ -7,6 +7,7 @@
 - `MOV` with the bit-reverse operator (`::`) reverses the bits instead of copying them, and the reserved operation is rejected rather than treated as a copy.
 - `MOV PINS` writes the pins selected by `out_base` and `out_count` instead of always starting at GPIO 0 with 32 bits.
 - The delay cycles of a `PULL IFEMPTY` or `PUSH IFFULL` that does nothing are no longer skipped.
+- `JMP !OSRE` treats the OSR as empty once `pull_threshold` bits have been shifted out, instead of only after 32.
 
 ## 0.88.0 (2026-08-28)
 

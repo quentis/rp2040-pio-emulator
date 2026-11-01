@@ -154,6 +154,7 @@ def emulate(
         set_base,
         set_count,
         jmp_pin,
+        pull_threshold=pull_threshold,
         irq_handler=irq_handler,
         irq_flags=_irq_flags,
     )
