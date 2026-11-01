@@ -1,6 +1,6 @@
 {
   "case": "out_pins_from_fifo",
-  "source": "hand-derived",
-  "notes": "Derived from the instruction semantics; not yet captured from hardware.",
+  "source": "hardware",
+  "notes": "Captured on Raspberry Pi Pico2 with RP2350, MicroPython 1.29.0; state machine at 5000000 Hz, analyzer at 50000000 Hz.",
   "trace": {"observed_pins": [8], "values": [0, 0, 1, 0, 1]}
 }

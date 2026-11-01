@@ -35,10 +35,12 @@ def load_golden(path: Path) -> Golden:
 
 
 def save_golden(path: Path, golden: Golden) -> None:
-    data = {
+    # The trace stays on one line so that a changed value shows up as a one-line diff.
+    fields = {
         "case": golden.case,
         "source": golden.source,
         "notes": golden.notes,
         "trace": golden.trace.to_dict(),
     }
-    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    body = ",\n".join(f"  {json.dumps(key)}: {json.dumps(value)}" for key, value in fields.items())
+    path.write_text("{\n" + body + "\n}\n", encoding="utf-8")
