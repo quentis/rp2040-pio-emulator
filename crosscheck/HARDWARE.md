@@ -43,6 +43,22 @@ An optional 330 ohm - 1 kohm resistor in series with each wire protects against 
 - `pip install dwfpy` (the `hardware` dependency group in `pyproject.toml`).
 - Pico 2 runs MicroPython or other firmware that implements the case runner (not written yet).
 
+## Flashing MicroPython with the Debug Probe
+
+Connect the Raspberry Pi Debug Probe's SWD port to the Pico 2's three-pin DEBUG header
+(SWCLK, GND, SWDIO) and keep the Pico powered over USB. Then:
+
+```
+python -m crosscheck.flash_micropython --dry-run   # show what would be done
+python -m crosscheck.flash_micropython             # download, flash, verify, reset
+```
+
+The script downloads the newest stable (non-RISC-V) Pico 2 build from micropython.org, converts
+the UF2 to a flat binary and flashes it at 0x10000000 with `probe-rs`. It selects the probe by
+VID:PID `2e8a:000c`, because `probe-rs` also lists the Analog Discovery (an FTDI device) as a
+debug probe and must not be pointed at it. Use `--probe` for a different probe and `--file`
+for a UF2 you already have.
+
 ## Capture timing
 
 - Run the state machine slowly, for example 10 MHz, so the analyzer takes several samples per
