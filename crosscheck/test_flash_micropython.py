@@ -5,9 +5,10 @@ import pytest
 
 from .flash_micropython import (
     RP2350_ARM_SECURE,
-    find_latest_firmware,
+    find_firmware,
     flash_command,
     main,
+    parse_version,
     uf2_to_bin,
 )
 
@@ -31,7 +32,7 @@ def uf2_block(address: int, payload: bytes, family: int | None = RP2350_ARM_SECU
 class TestFindLatestFirmware:
     def test_picks_the_newest_stable_standard_build(self):
         assert (
-            find_latest_firmware(PAGE)
+            find_firmware(PAGE)
             == "https://micropython.org/resources/firmware/RPI_PICO2-20260824-v1.29.0.uf2"
         )
 
@@ -41,11 +42,29 @@ class TestFindLatestFirmware:
             '<a href="/resources/firmware/RPI_PICO2-20230101-v1.10.0.uf2"></a>'
         )
 
-        assert find_latest_firmware(page).endswith("v1.10.0.uf2")
+        assert find_firmware(page).endswith("v1.10.0.uf2")
 
     def test_fails_without_a_stable_link(self):
         with pytest.raises(ValueError):
-            find_latest_firmware("<html>nothing here</html>")
+            find_firmware("<html>nothing here</html>")
+
+
+class TestPinnedVersion:
+    def test_selects_the_requested_version(self):
+        assert find_firmware(PAGE, (1, 26, 0)).endswith("RPI_PICO2-20250809-v1.26.0.uf2")
+
+    def test_fails_when_the_requested_version_is_not_listed(self):
+        with pytest.raises(ValueError, match="v1.2.3"):
+            find_firmware(PAGE, (1, 2, 3))
+
+    @pytest.mark.parametrize("text, expected", [("1.29.0", (1, 29, 0)), ("v1.9.10", (1, 9, 10))])
+    def test_parse_version(self, text, expected):
+        assert parse_version(text) == expected
+
+    @pytest.mark.parametrize("text", ["1.29", "latest", "1.x.0"])
+    def test_parse_version_rejects_other_text(self, text):
+        with pytest.raises(ValueError):
+            parse_version(text)
 
 
 class TestUf2ToBin:

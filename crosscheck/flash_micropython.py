@@ -1,5 +1,5 @@
 """
-Downloads the latest stable MicroPython firmware for the Pico 2 and flashes it through a
+Downloads a pinned, stable MicroPython firmware for the Pico 2 and flashes it through a
 Raspberry Pi Debug Probe (CMSIS-DAP, SWD) with pyOCD.
 
     python -m crosscheck.flash_micropython             # download, flash, reset
@@ -22,6 +22,10 @@ from urllib.parse import urljoin
 DOWNLOAD_PAGE = "https://micropython.org/download/RPI_PICO2/"
 TARGET = "rp2350"  # pyOCD built-in target
 
+# The firmware the hardware cross-check runs against. Golden traces captured on hardware should
+# be reproducible, so this is raised deliberately rather than following the latest release.
+PINNED_VERSION = (1, 29, 0)
+
 UF2_MAGIC_START0 = 0x0A324655
 UF2_MAGIC_START1 = 0x9E5D5157
 UF2_MAGIC_END = 0x0AB16F30
@@ -36,16 +40,33 @@ _FIRMWARE_LINK = re.compile(
 )
 
 
-def find_latest_firmware(html: str, page_url: str = DOWNLOAD_PAGE) -> str:
-    """Returns the absolute URL of the newest stable firmware linked from the download page."""
+def find_firmware(
+    html: str, version: tuple[int, int, int] | None = None, page_url: str = DOWNLOAD_PAGE
+) -> str:
+    """
+    Returns the absolute URL of a stable firmware build linked from the download page: the one
+    with the given version, or the newest if no version is given.
+    """
     candidates = [
         ((int(major), int(minor), int(patch), date), href)
         for href, date, major, minor, patch in _FIRMWARE_LINK.findall(html)
     ]
+    if version is not None:
+        candidates = [c for c in candidates if c[0][:3] == version]
+
     if not candidates:
-        raise ValueError("no stable firmware link found on the download page")
+        wanted = "v" + ".".join(map(str, version)) if version else "any stable version"
+        raise ValueError(f"no firmware link for {wanted} found on the download page")
 
     return urljoin(page_url, max(candidates)[1])
+
+
+def parse_version(text: str) -> tuple[int, int, int]:
+    match = re.fullmatch(r"v?(\d+)\.(\d+)\.(\d+)", text.strip())
+    if not match:
+        raise ValueError(f"not a version of the form X.Y.Z: {text!r}")
+
+    return tuple(map(int, match.groups()))  # type: ignore[return-value]
 
 
 def uf2_to_bin(data: bytes, family_id: int = RP2350_ARM_SECURE) -> tuple[int, bytes]:
@@ -95,9 +116,9 @@ def _download(url: str) -> bytes:
         return response.read()
 
 
-def fetch_firmware(cache_dir: Path) -> Path:
-    """Downloads the latest stable firmware into cache_dir unless it is already there."""
-    url = find_latest_firmware(_download(DOWNLOAD_PAGE).decode("utf-8", "replace"))
+def fetch_firmware(cache_dir: Path, version: tuple[int, int, int] | None) -> Path:
+    """Downloads the firmware (newest stable if no version) into cache_dir unless cached."""
+    url = find_firmware(_download(DOWNLOAD_PAGE).decode("utf-8", "replace"), version)
     path = cache_dir / url.rsplit("/", 1)[1]
 
     if path.exists():
@@ -128,6 +149,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--file", type=Path, help="flash this UF2 instead of downloading")
     parser.add_argument(
+        "--version",
+        default=".".join(map(str, PINNED_VERSION)),
+        help="MicroPython version to flash, or 'latest' (default: %(default)s)",
+    )
+    parser.add_argument(
         "--cache-dir",
         type=Path,
         default=Path.home() / ".cache" / "pioemu-crosscheck",
@@ -141,7 +167,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dry-run", action="store_true", help="print the command, flash nothing")
     args = parser.parse_args(argv)
 
-    uf2 = args.file or fetch_firmware(args.cache_dir)
+    version = None if args.version == "latest" else parse_version(args.version)
+    uf2 = args.file or fetch_firmware(args.cache_dir, version)
     base, image = uf2_to_bin(uf2.read_bytes())
     print(f"{uf2.name}: {len(image)} bytes at 0x{base:08X}")
 
