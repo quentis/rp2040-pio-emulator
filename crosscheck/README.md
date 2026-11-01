@@ -19,6 +19,8 @@ Discovery (via [dwfpy](https://dwfpy.readthedocs.io)), and compares per-cycle pi
 - `device_runner.py` - the MicroPython code that runs on the board. It loads the case on one
   state machine and a marker program on another, and enables both with a single write to the
   PIO control register so they start on the same clock.
+- `wiring.py`, `test_wiring.py` - check the connections between the Pico 2 and the Analog
+  Discovery. The wiring test runs first and stops the whole run if it fails (`fail_fast.py`).
 - `capture_golden.py` - checks cases on hardware against their golden traces, or records them.
 - `pico.py`, `firmware.py`, `flash_micropython.py` - serial link, firmware check, flashing.
 

@@ -1,5 +1,6 @@
 import pytest
 
+from .fail_fast import stop_after_failed_wiring, wiring_first
 from .firmware import ensure_micropython
 
 
@@ -19,10 +20,14 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "hardware: needs a Pico 2 and an Analog Discovery")
+    config.addinivalue_line(
+        "markers", "wiring: checks the connections; runs first and stops the run if it fails"
+    )
 
 
 def pytest_collection_modifyitems(config, items):
     if config.getoption("--hardware"):
+        wiring_first(items)
         return
 
     skip = pytest.mark.skip(reason="needs hardware: run with --hardware")
@@ -35,3 +40,10 @@ def pytest_collection_modifyitems(config, items):
 def pico_port(request) -> str:
     """Serial port of a Pico 2 running a suitable MicroPython; flashes it if required."""
     return ensure_micropython(allow_flash=not request.config.getoption("--no-flash"))
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    stop_after_failed_wiring(item, outcome.get_result())
+

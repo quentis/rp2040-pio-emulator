@@ -30,6 +30,16 @@ machine) also goes on GP8 and above.
 
 An optional 330 ohm - 1 kohm resistor in series with each wire protects against wiring mistakes.
 
+## Checking the wiring
+
+`python -m pytest crosscheck --hardware` starts with a wiring test (`test_wiring.py`, marked
+`wiring`), which runs before every other test. It drives each of the sixteen wires on its own,
+DIO0 - DIO7 from the Analog Discovery and GP8 - GP15 from the Pico, and reads the other side
+back. A wire that is missing, on the wrong pin, shorted to another one, or stuck high each gives
+a message of its own, for example `GP5 does not follow DIO5`. If the wiring test fails the whole
+run stops, because nothing that follows would mean anything. Ground is checked implicitly: without
+it the readings are not stable.
+
 ## Power
 
 - Power the Pico from its own USB cable; that cable is also the serial link to the PC.
