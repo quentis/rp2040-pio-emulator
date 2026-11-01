@@ -51,6 +51,30 @@ from ..support import instruction_param
             State(pin_values=0xFFFF_FFFF, transmit_fifo=deque([0xAAAA_AAAA]), output_shift_register=ShiftRegister(0xFF, 24)),
             State(pin_values=0x0000_00FF, transmit_fifo=deque(), output_shift_register=ShiftRegister(0xAAAA_AAAA, 0)),
         ),
+
+        # Test PULL is a no-op while the OSR is full
+        instruction_param(
+            "pull block",
+            0x80A0,
+            State(transmit_fifo=deque([0xBB]), output_shift_register=ShiftRegister(0xAA, 0)),
+            State(transmit_fifo=deque([0xBB]), output_shift_register=ShiftRegister(0xAA, 0)),
+        ),
+
+        # Test the no-op PULL does not stall when the FIFO is empty
+        instruction_param(
+            "pull block",
+            0x80A0,
+            State(transmit_fifo=deque(), output_shift_register=ShiftRegister(0xAA, 0)),
+            State(transmit_fifo=deque(), output_shift_register=ShiftRegister(0xAA, 0)),
+        ),
+
+        # Test PULL replaces the OSR once any bit has been shifted out of it
+        instruction_param(
+            "pull block",
+            0x80A0,
+            State(transmit_fifo=deque([0xBB]), output_shift_register=ShiftRegister(0xAA, 3)),
+            State(transmit_fifo=deque(), output_shift_register=ShiftRegister(0xBB, 0)),
+        ),
     ]
 )
 # fmt: on

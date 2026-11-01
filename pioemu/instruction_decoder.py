@@ -89,6 +89,7 @@ class InstructionDecoder:
         set_count: int,
         jmp_pin: int,
         *,
+        auto_pull: bool = False,
         pull_threshold: int = 32,
         irq_handler: Optional[Callable[[int, State], State]] = None,
         irq_flags: Optional[List[int]] = None,
@@ -110,6 +111,9 @@ class InstructionDecoder:
             Number of consecutive pins to write for SET instructions.
         jmp_pin : int
             Pin that determines the branch taken by JMP PIN instructions.
+        auto_pull : bool
+            Whether the Output Shift Register (OSR) is refilled automatically; a PULL instruction
+            is then a no-op while the OSR is full.
         pull_threshold : int
             Number of bits shifted out of the Output Shift Register (OSR) before it counts as
             empty for the purposes of JMP !OSRE.
@@ -121,6 +125,7 @@ class InstructionDecoder:
         self.out_count = out_count
         self.set_base = set_base
         self.set_count = set_count
+        self._auto_pull = auto_pull
         self._irq_handler: Callable[[int, State], State] = irq_handler or (
             lambda idx, state: state
         )
@@ -386,13 +391,21 @@ class InstructionDecoder:
             ProgramCounterAdvance.ALWAYS,
         )
 
-    @staticmethod
-    def _decode_pull(instruction: PullInstruction) -> Emulation:
+    def _decode_pull(self, instruction: PullInstruction) -> Emulation:
         condition = output_shift_register_empty if instruction.if_empty else always
+        pull = pull_blocking if instruction.block else pull_nonblocking
+
+        def pull_unless_osr_full(state: State) -> State | None:
+            # With autopull enabled a PULL is a no-op while the OSR is full, so that it acts as
+            # a barrier. See the note in section 3.4.7.2 of the RP2040 Datasheet.
+            if state.output_shift_register.counter == 0:
+                return state
+
+            return pull(state)
 
         return Emulation(
             condition,
-            pull_blocking if instruction.block else pull_nonblocking,
+            pull_unless_osr_full if self._auto_pull else pull,
             ProgramCounterAdvance.ALWAYS,
             instruction,
         )

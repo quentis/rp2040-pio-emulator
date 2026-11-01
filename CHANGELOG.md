@@ -8,6 +8,7 @@
 - `MOV PINS` writes the pins selected by `out_base` and `out_count` instead of always starting at GPIO 0 with 32 bits.
 - The delay cycles of a `PULL IFEMPTY` or `PUSH IFFULL` that does nothing are no longer skipped.
 - `JMP !OSRE` treats the OSR as empty once `pull_threshold` bits have been shifted out, instead of only after 32.
+- `PULL` is a no-op while the OSR is full and `auto_pull` is enabled, instead of replacing the OSR contents.
 
 ## 0.88.0 (2026-08-28)
 
