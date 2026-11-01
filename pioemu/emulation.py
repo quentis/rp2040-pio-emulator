@@ -201,7 +201,14 @@ def emulate(
             and bool(current_state.transmit_fifo)
         )
 
-        opcode = opcodes[current_state.program_counter]
+        # An instruction written by OUT EXEC or MOV EXEC takes the place of the next instruction.
+        # It does not advance the program counter, so execution continues after the OUT or MOV.
+        executing = current_state.exec_opcode
+        if executing is None:
+            opcode = opcodes[current_state.program_counter]
+        else:
+            opcode = executing
+            current_state = replace(current_state, exec_opcode=None)
 
         (side_set_value, delay_value, apply_side_set) = _extract_delay_and_side_set_from_opcode(
             opcode, side_set_count, side_set_opt
@@ -277,10 +284,15 @@ def emulate(
                 current_state, side_set_base, side_set_count, side_set_value
             )
 
+        if executing is not None and stalled:
+            # A stalled instruction written by EXEC keeps the state machine waiting
+            current_state = replace(current_state, exec_opcode=executing)
+
         if not stalled:
-            current_state = _advance_program_counter(
-                emulation, condition_met, wrap_target, wrap_top, current_state
-            )
+            if executing is None:
+                current_state = _advance_program_counter(
+                    emulation, condition_met, wrap_target, wrap_top, current_state
+                )
 
             current_state = replace(
                 current_state, clock=current_state.clock + delay_value

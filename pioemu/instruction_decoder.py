@@ -61,6 +61,7 @@ from .primitive_operations import (
     read_from_y,
     stall_unless_predicate_met,
     supplies_value,
+    write_to_exec,
     write_to_isr,
     write_to_osr,
     write_to_pin_directions,
@@ -205,7 +206,7 @@ class InstructionDecoder:
             partial(write_to_pin_directions, self.out_base, self.out_count),
             write_to_program_counter,
             write_to_isr,
-            None,
+            write_to_exec,
         ]
 
         self.set_destinations: List[

@@ -4,6 +4,7 @@
 
 ### Added
 - `MOV ... STATUS`, configured with the new `status_sel` and `status_n` arguments of `emulate()`.
+- `OUT EXEC`. The instruction it shifts out is executed instead of the next one and held in the new `exec_opcode` field of `State` until then.
 
 ### Changed
 - Fixed `wrap_top=0`, which was treated as not given: a wrap range that ends at the first instruction is now honoured.

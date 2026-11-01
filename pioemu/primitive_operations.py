@@ -147,6 +147,12 @@ def write_to_pins(
     )
 
 
+def write_to_exec(data_supplier: Callable[[State], int], state: State) -> State:
+    """Makes the given data the instruction that is executed next."""
+
+    return replace(state, exec_opcode=data_supplier(state) & 0xFFFF)
+
+
 def write_to_program_counter(
     data_supplier: Callable[[State], int], state: State
 ) -> State:

@@ -13,7 +13,7 @@
 # limitations under the License.
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Deque
+from typing import Deque, Optional
 
 from .shift_register import ShiftRegister
 
@@ -35,3 +35,5 @@ class State:
     x_register: int = 0
     y_register: int = 0
     irq_flags: int = 0
+    # Opcode that OUT EXEC / MOV EXEC left to be executed instead of the next instruction
+    exec_opcode: Optional[int] = None

@@ -15,7 +15,8 @@ from dataclasses import replace
 
 import pytest
 
-from pioemu import ShiftRegister, State
+from pioemu import ShiftRegister, State, clock_cycles_reached, emulate
+from ..opcodes import Opcodes
 from ..support import emulate_single_instruction
 
 # fmt: off
@@ -190,3 +191,71 @@ def test_out_to_pin_directions(
     )
 
     assert replace(new_state, clock=0) == expected_state
+
+
+def run_with_out_exec(out_exec_opcode: int, executed_opcode: int, following: list[int], cycles: int):
+    return [
+        state
+        for _, state in emulate(
+            [out_exec_opcode, *following],
+            initial_state=State(output_shift_register=ShiftRegister(executed_opcode, 0)),
+            stop_when=clock_cycles_reached(cycles),
+            irq_handler=None,
+        )
+    ]
+
+
+def test_out_exec_executes_the_shifted_out_instruction_in_the_next_cycle():
+    out_exec_16 = 0x60F0
+    set_pins_1 = 0xE001
+    set_pins_2 = 0xE002
+
+    states = run_with_out_exec(out_exec_16, set_pins_1, [set_pins_2, Opcodes.nop()], cycles=3)
+
+    # The executed instruction does not advance the program counter: execution carries on
+    # with the instruction that follows the OUT EXEC.
+    assert [(state.program_counter, state.pin_values) for state in states] == [
+        (1, 0),
+        (1, 1),
+        (2, 2),
+    ]
+    assert states[0].exec_opcode == set_pins_1
+    assert states[1].exec_opcode is None
+
+
+def test_out_exec_waits_out_its_own_delay_before_the_executed_instruction_runs():
+    out_exec_16_delay_2 = 0x62F0
+    set_pins_1 = 0xE001
+
+    states = run_with_out_exec(out_exec_16_delay_2, set_pins_1, [Opcodes.nop()], cycles=4)
+
+    assert [(state.clock, state.pin_values) for state in states] == [(3, 0), (4, 1)]
+
+
+def test_out_exec_honours_the_delay_of_the_executed_instruction():
+    out_exec_16 = 0x60F0
+    set_pins_1_delay_3 = 0xE301
+
+    states = run_with_out_exec(out_exec_16, set_pins_1_delay_3, [Opcodes.nop()], cycles=2)
+
+    assert [(state.clock, state.pin_values) for state in states] == [(1, 0), (5, 1)]
+
+
+def test_out_exec_of_a_jump_sets_the_program_counter():
+    out_exec_16 = 0x60F0
+    jmp_4 = 0x0004
+
+    states = run_with_out_exec(out_exec_16, jmp_4, [Opcodes.nop()] * 5, cycles=2)
+
+    assert [state.program_counter for state in states] == [1, 4]
+
+
+def test_out_exec_of_an_instruction_that_stalls_holds_the_state_machine():
+    out_exec_16 = 0x60F0
+    wait_1_irq_0 = 0x20C0
+
+    states = run_with_out_exec(out_exec_16, wait_1_irq_0, [0xE002], cycles=4)
+
+    assert [state.program_counter for state in states] == [1, 1, 1, 1]
+    assert [state.exec_opcode for state in states] == [wait_1_irq_0] * 4
+    assert all(state.pin_values == 0 for state in states)

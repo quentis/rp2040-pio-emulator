@@ -53,7 +53,7 @@ Instruction | Supported                         | Notes
 JMP         | :heavy_check_mark:                | 
 WAIT        | :heavy_check_mark:                |
 IN          | :heavy_check_mark:                |
-OUT         | :heavy_check_mark: :construction: | EXEC destination not implemented
+OUT         | :heavy_check_mark:                |
 PUSH        | :heavy_check_mark:                | 
 PULL        | :heavy_check_mark:                | 
 MOV         | :heavy_check_mark: :construction: | Some variants and operations not implemented
