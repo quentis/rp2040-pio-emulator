@@ -15,6 +15,7 @@ from dataclasses import replace
 from functools import partial
 from typing import Callable, List, Optional, Tuple
 
+from .bit_operations import reverse_bits_32
 from .conditions import (
     always,
     gpio_low,
@@ -302,6 +303,10 @@ class InstructionDecoder:
 
         if operation == 1:
             data_supplier = lambda state: read_from_source(state) ^ 0xFFFF_FFFF
+        elif operation == 2:
+            data_supplier = lambda state: reverse_bits_32(read_from_source(state))
+        elif operation == 3:  # Reserved
+            return None
         else:
             data_supplier = read_from_source
 

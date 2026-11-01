@@ -13,7 +13,7 @@
 # limitations under the License.
 import pytest
 
-from pioemu import ShiftRegister, State
+from pioemu import ShiftRegister, State, clock_cycles_reached, emulate
 
 from ..support import emulate_single_instruction, instruction_param
 
@@ -102,6 +102,18 @@ instructions_to_test = [
         0xA007,
         State(output_shift_register=ShiftRegister(0x1_0000_0000, 0)),
         State(output_shift_register=ShiftRegister(0x1_0000_0000, 0), pin_values=0x0000_0000),
+    ),
+    instruction_param(
+        "mov x :: y",
+        0xA032,
+        State(y_register=0x0000_0001),
+        State(y_register=0x0000_0001, x_register=0x8000_0000),
+    ),
+    instruction_param(
+        "mov osr :: isr",
+        0xA0F6,
+        State(input_shift_register=ShiftRegister(0x0000_00F3, 0)),
+        State(input_shift_register=ShiftRegister(0x0000_00F3, 0), output_shift_register=ShiftRegister(0xCF00_0000, 0)),
     ),
     instruction_param(
         "mov y ~ x",
@@ -217,3 +229,9 @@ def test_mov_instruction(opcode: int, initial_state: State, expected_state: Stat
     )
 
     assert new_state == expected_state
+
+
+def test_mov_with_the_reserved_operation_ends_the_emulation():
+    opcode = 0xA03A  # mov x, <reserved operation 3> y
+
+    assert list(emulate([opcode], stop_when=clock_cycles_reached(1))) == []

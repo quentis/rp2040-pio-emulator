@@ -21,3 +21,9 @@ def update_bits_32(value, new_value, bit_position=0, bit_count=32):
     return (
         (value & ~bit_mask) | ((new_value << bit_position) & bit_mask)
     ) & 0xFFFF_FFFF
+
+
+def reverse_bits_32(value):
+    """Reverses the order of the lowest 32 bits of a value."""
+
+    return int(f"{value & 0xFFFF_FFFF:032b}"[::-1], 2)
