@@ -51,6 +51,8 @@ def emulate(
     side_set_count: int = 0,
     side_set_opt: bool = False,
     jmp_pin: int = 0,
+    status_sel: int = 0,
+    status_n: int = 0,
     wrap_target: int = 0,
     wrap_top: int | None = None,
 ) -> Generator[Tuple[State, State], None, None]:
@@ -93,6 +95,11 @@ def emulate(
         Number of consecutive pins to include within the side-set.
     jmp_pin : int, optional
         Pin that determines the branch taken by JMP PIN instructions.
+    status_sel : int, optional
+        FIFO compared by MOV ... STATUS: 0 for the TX FIFO or 1 for the RX FIFO.
+    status_n : int, optional
+        MOV ... STATUS gives all ones when the FIFO selected by status_sel holds fewer than
+        this many entries, otherwise all zeroes.
     wrap_target : int, optional
         Program counter value to wrap to when the program counter reaches the wrap_top value.
     wrap_top : int, optional
@@ -128,6 +135,12 @@ def emulate(
     if set_count < 0 or set_count > 5:
         raise ValueError("emulate() invalid value for keyword argument: 'set_count'")
 
+    if status_sel not in (0, 1):
+        raise ValueError("emulate() invalid value for keyword argument: 'status_sel'")
+
+    if status_n < 0 or status_n > 15:
+        raise ValueError("emulate() invalid value for keyword argument: 'status_n'")
+
     if stop_when is None:
         raise ValueError("emulate() missing value for keyword argument: 'stop_when'")
 
@@ -156,6 +169,8 @@ def emulate(
         jmp_pin,
         auto_pull=auto_pull,
         pull_threshold=pull_threshold,
+        status_sel=status_sel,
+        status_n=status_n,
         irq_handler=irq_handler,
         irq_flags=_irq_flags,
     )

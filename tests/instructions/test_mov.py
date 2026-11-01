@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from collections import deque
+
 import pytest
 
 from pioemu import ShiftRegister, State, clock_cycles_reached, emulate
@@ -248,3 +250,39 @@ def test_mov_pins_writes_the_out_pin_group():
     )
 
     assert new_state.pin_values == 0x0000_0003 | (0b101 << 10)
+
+
+@pytest.mark.parametrize(
+    "state, status_sel, status_n, expected_x_register",
+    [
+        pytest.param(State(), 0, 0, 0x0000_0000, id="never true when status_n is 0"),
+        pytest.param(State(transmit_fifo=deque([1, 2])), 0, 3, 0xFFFF_FFFF, id="TX level below status_n"),
+        pytest.param(State(transmit_fifo=deque([1, 2, 3])), 0, 3, 0x0000_0000, id="TX level equal to status_n"),
+        pytest.param(State(receive_fifo=deque([1])), 1, 2, 0xFFFF_FFFF, id="RX level below status_n"),
+        pytest.param(State(receive_fifo=deque([1, 2])), 1, 2, 0x0000_0000, id="RX level equal to status_n"),
+        pytest.param(State(receive_fifo=deque([1, 2, 3])), 0, 2, 0xFFFF_FFFF, id="only the selected FIFO counts"),
+    ],
+)
+def test_mov_x_status(state: State, status_sel: int, status_n: int, expected_x_register: int):
+    opcode = 0xA025  # mov x, status
+
+    _, new_state = next(
+        emulate(
+            [opcode],
+            initial_state=state,
+            stop_when=clock_cycles_reached(1),
+            status_sel=status_sel,
+            status_n=status_n,
+        )
+    )
+
+    assert new_state.x_register == expected_x_register
+
+
+@pytest.mark.parametrize(
+    "keyword, value",
+    [("status_sel", 2), ("status_sel", -1), ("status_n", 16), ("status_n", -1)],
+)
+def test_emulate_rejects_invalid_status_settings(keyword: str, value: int):
+    with pytest.raises(ValueError, match=keyword):
+        next(emulate([0xA042], stop_when=clock_cycles_reached(1), **{keyword: value}))

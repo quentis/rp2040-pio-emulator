@@ -88,6 +88,17 @@ def read_from_y(state: State) -> int:
     return state.y_register
 
 
+def read_from_status(status_sel: int, status_n: int, state: State) -> int:
+    """
+    Reads the status flag: all ones if the FIFO level selected by status_sel is below status_n
+    (0 selects the TX FIFO and 1 the RX FIFO), otherwise all zeroes.
+    """
+
+    level = len(state.receive_fifo if status_sel == 1 else state.transmit_fifo)
+
+    return 0xFFFF_FFFF if level < status_n else 0
+
+
 def write_to_isr(
     data_supplier: Callable[[State], int], state: State, count: int = 0
 ) -> State:

@@ -2,6 +2,9 @@
 
 ## Unreleased Version
 
+### Added
+- `MOV ... STATUS`, configured with the new `status_sel` and `status_n` arguments of `emulate()`.
+
 ### Changed
 - Fixed `wrap_top=0`, which was treated as not given: a wrap range that ends at the first instruction is now honoured.
 - `MOV` with the bit-reverse operator (`::`) reverses the bits instead of copying them, and the reserved operation is rejected rather than treated as a copy.

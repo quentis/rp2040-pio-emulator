@@ -56,6 +56,7 @@ from .primitive_operations import (
     read_from_osr,
     shift_from_osr,
     read_from_pins,
+    read_from_status,
     read_from_x,
     read_from_y,
     stall_unless_predicate_met,
@@ -91,6 +92,8 @@ class InstructionDecoder:
         *,
         auto_pull: bool = False,
         pull_threshold: int = 32,
+        status_sel: int = 0,
+        status_n: int = 0,
         irq_handler: Optional[Callable[[int, State], State]] = None,
         irq_flags: Optional[List[int]] = None,
     ):
@@ -117,6 +120,10 @@ class InstructionDecoder:
         pull_threshold : int
             Number of bits shifted out of the Output Shift Register (OSR) before it counts as
             empty for the purposes of JMP !OSRE.
+        status_sel : int
+            FIFO whose level MOV ... STATUS compares: 0 for the TX FIFO and 1 for the RX FIFO.
+        status_n : int
+            MOV ... STATUS gives all ones when the selected FIFO holds fewer entries than this.
         """
 
         self.shift_isr_method = shift_isr_method
@@ -171,7 +178,7 @@ class InstructionDecoder:
             read_from_y,
             supplies_value(0),
             None,
-            None,
+            partial(read_from_status, status_sel, status_n),
             read_from_isr,
             read_from_osr,
         ]
