@@ -19,8 +19,19 @@ PREFILL = 16  # analyzer samples kept from before the trigger
 TAIL_CYCLES = 2  # cycles captured beyond the end of the case
 
 OBSERVABLE_PINS = range(8, 15)  # GP8 - GP14 are wired to DIO8 - DIO14, analyzer inputs
+STIMULUS_PINS = range(0, 8)  # GP0 - GP7 are wired to DIO0 - DIO7, pattern generator outputs
 MARKER_PIN = 15
 MAX_TX_FIFO_WORDS = 4
+
+# The pattern generator starts this many samples after the marker edge that triggers it. The
+# analyzer sees the pattern, and run_on_hardware() checks that the edges land where they belong.
+PATTERN_LATENCY = 9
+# A stimulus edge is placed half a cycle before the cycle in which the state machine is to see
+# it, and must be seen within this many samples of that point.
+STIMULUS_TOLERANCE = 2
+# The earliest cycle at which the stimulus can change: its edge has to follow the marker edge by
+# at least the pattern generator's latency.
+FIRST_STIMULUS_CYCLE = 2
 
 # Marker program: "set pins, 1" in cycle 0, then spin. It starts on the same clock as the case.
 _MARKER_OPCODES = [0xE001, 0x0001]
@@ -41,8 +52,7 @@ def _check_pins(case: Case, name: str, base: int, count: int) -> None:
 
 def validate(case: Case) -> None:
     """Raises ValueError if the case cannot be run on the wired hardware."""
-    if case.stimulus:
-        raise ValueError(f"case {case.name!r}: stimulus is not supported on hardware yet")
+    _check_stimulus(case)
 
     if len(case.tx_fifo) > MAX_TX_FIFO_WORDS:
         raise ValueError(f"case {case.name!r}: at most {MAX_TX_FIFO_WORDS} TX FIFO words")
@@ -54,6 +64,96 @@ def validate(case: Case) -> None:
     for pin in range(32):
         if directions >> pin & 1 and pin not in OBSERVABLE_PINS:
             raise ValueError(f"case {case.name!r}: GP{pin} cannot be an output on this wiring")
+
+
+class StimulusTimingError(RuntimeError):
+    """The pattern generator did not produce the stimulus where the case needs it."""
+
+
+def _check_stimulus(case: Case) -> None:
+    previous_cycle = None
+    for cycle, pin_values in case.stimulus:
+        if pin_values & ~0xFF:
+            raise ValueError(
+                f"case {case.name!r}: stimulus can only drive GP0 - GP7, not 0x{pin_values:X}"
+            )
+
+        if previous_cycle is not None and cycle <= previous_cycle:
+            raise ValueError(f"case {case.name!r}: stimulus cycles must be strictly increasing")
+
+        if 0 < cycle < FIRST_STIMULUS_CYCLE:
+            raise ValueError(
+                f"case {case.name!r}: stimulus can change from cycle {FIRST_STIMULUS_CYCLE} at "
+                "the earliest (cycle 0 gives the initial level)"
+            )
+
+        previous_cycle = cycle
+
+
+def _stimulus_level(case: Case, pin: int, cycle: int) -> int:
+    """The level that the stimulus gives a pin from the given cycle onwards."""
+    level = 0
+    for change_cycle, pin_values in case.stimulus:
+        if change_cycle <= cycle:
+            level = (pin_values >> pin) & 1
+
+    return level
+
+
+def stimulus_drive(case: Case, length: int) -> dict[int, tuple[int, list[int]]]:
+    """
+    Describes what the pattern generator plays for the case: for each of GP0 - GP7 its idle level
+    and `length` bits, one per analyzer sample from the start of the pattern.
+
+    A stimulus change from cycle N is an edge half a cycle before cycle N starts, that is
+    PATTERN_LATENCY samples after the pattern starts less that distance.
+    """
+    samples_per_cycle = int(SAMPLE_RATE / FREQ)
+    half = samples_per_cycle // 2
+
+    drive = {}
+    for pin in STIMULUS_PINS:
+        bits = [
+            _stimulus_level(case, pin, (index + PATTERN_LATENCY + half) // samples_per_cycle)
+            for index in range(length)
+        ]
+        drive[pin] = (_stimulus_level(case, pin, 0), bits)
+
+    return drive
+
+
+def check_stimulus_timing(samples: list[int], marker_edge: int, case: Case) -> None:
+    """
+    Raises StimulusTimingError unless every stimulus edge was seen on the analyzer within
+    STIMULUS_TOLERANCE samples of where it belongs, relative to the marker edge.
+    """
+    samples_per_cycle = int(SAMPLE_RATE / FREQ)
+    search = 3 * STIMULUS_TOLERANCE
+
+    for pin in STIMULUS_PINS:
+        previous_level = _stimulus_level(case, pin, 0)
+        for cycle, _ in case.stimulus:
+            level = _stimulus_level(case, pin, cycle)
+            if level == previous_level or cycle == 0:
+                continue
+
+            expected = marker_edge + cycle * samples_per_cycle - samples_per_cycle // 2
+            seen = [
+                index
+                for index in range(max(1, expected - search), expected + search + 1)
+                if index < len(samples)
+                and (samples[index] >> pin) & 1 == level
+                and (samples[index - 1] >> pin) & 1 != level
+            ]
+
+            if not seen or min(abs(index - expected) for index in seen) > STIMULUS_TOLERANCE:
+                raise StimulusTimingError(
+                    f"case {case.name!r}: the edge on GP{pin} for cycle {cycle} belongs at "
+                    f"sample {expected} (marker edge at {marker_edge}) but was seen at "
+                    f"{seen or 'no sample'}"
+                )
+
+            previous_level = level
 
 
 def build_spec(case: Case, program: AssembledProgram | None = None) -> dict:
@@ -158,6 +258,10 @@ def run_on_hardware(
     samples_per_cycle = SAMPLE_RATE / FREQ
     sample_count = PREFILL + int((case.cycles + TAIL_CYCLES) * samples_per_cycle)
 
+    options = {}
+    if case.stimulus:
+        options["drive"] = stimulus_drive(case, sample_count)
+
     with open_repl(port) as repl:
         repl.exec(device_runner_source())
         repl.exec(f"setup({spec!r})")
@@ -169,17 +273,23 @@ def run_on_hardware(
                 sample_count=sample_count,
                 prefill=PREFILL,
                 start=lambda: repl.exec("start()"),
+                **options,
             )
         finally:
             repl.exec("stop()")
 
     # The marker edge and the effect of cycle 0 appear on the same clock edge. The edge is
     # looked up in the data: the analyzer's trigger sample is not exactly at the prefill index.
+    marker_edge = analog_discovery.find_rising_edge(samples, MARKER_PIN)
+
+    if case.stimulus:
+        check_stimulus_timing(samples, marker_edge, case)
+
     return analog_discovery.samples_to_trace(
         samples,
         sample_rate=SAMPLE_RATE,
         cycle_rate=FREQ,
-        first_cycle_sample=analog_discovery.find_rising_edge(samples, MARKER_PIN),
+        first_cycle_sample=marker_edge,
         cycles=case.cycles,
         pins=case.observed_pins,
     )

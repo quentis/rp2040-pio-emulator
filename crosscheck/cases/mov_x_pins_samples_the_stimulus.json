@@ -1,0 +1,20 @@
+{
+  "name": "mov_x_pins_samples_the_stimulus",
+  "description": "MOV from PINS samples the inputs when it executes, including the level they have before the first change (datasheet 3.4.8.2): 0b0110 is read at cycle 0 and 0b1001 after the change at cycle 4, and the complements reach the pins.",
+  "program": [
+    "mov x, pins",
+    "mov osr, ~x",
+    "out pins, 4",
+    "nop [4]",
+    "mov x, pins",
+    "mov osr, ~x",
+    "out pins, 4",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 18,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 4},
+  "stimulus": [[0, 6], [4, 9]]
+}

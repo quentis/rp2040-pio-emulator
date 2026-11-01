@@ -1,0 +1,18 @@
+{
+  "name": "jmp_pin_follows_the_stimulus",
+  "description": "JMP PIN branches on the pin selected by JMP_PIN (datasheet 3.4.2.2), driven from outside here: the output follows GPIO 0, which is high from cycle 5 to cycle 11.",
+  "program": [
+    "loop:",
+    "jmp pin high",
+    "set pins, 0",
+    "jmp loop",
+    "high:",
+    "set pins, 1",
+    "jmp loop"
+  ],
+  "cycles": 22,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 1, "jmp_pin": 0},
+  "stimulus": [[5, 1], [12, 0]]
+}

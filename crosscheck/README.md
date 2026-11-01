@@ -28,7 +28,8 @@ reason; the golden test then expects it to fail, strictly. No case needs it at t
 they cover.
 
 Cases that run on hardware must observe and drive GP8 - GP14 (see HARDWARE.md), configure their
-OUT/SET/side-set pin groups explicitly, and use no stimulus yet.
+OUT/SET/side-set pin groups explicitly. They may drive GP0 - GP7 from outside with `stimulus`
+(see HARDWARE.md); every run checks that the edges arrive where the case needs them.
 
 ```
 python -m pytest crosscheck
@@ -68,6 +69,6 @@ Everything on the hardware side has so far been tested only against fakes:
   effect) and the size of its buffer;
 - that the case and marker state machines really start on the same clock.
 
-Not implemented: pin stimulus from the Analog Discovery's pattern generator, reading back
-FIFO and register state, and the `IN` instruction (`in_base` is not a case setting). RP2350
-differs slightly from RP2040 in PIO; only use cases within the common subset.
+Not implemented: reading back FIFO and register state, and pin ranges beyond GPIO 29 (the Pico 2
+has no GPIO 30 or 31, so pin wrapping is covered by unit tests only). RP2350 differs slightly from
+RP2040 in PIO; only use cases within the common subset.

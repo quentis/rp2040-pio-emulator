@@ -1,0 +1,17 @@
+{
+  "name": "in_pins_samples_the_stimulus",
+  "description": "IN PINS samples GPIO 0 to 3 at the moment it executes (datasheet 3.4.4.2): the input changes to 0b1010 at cycle 2 and is read at cycle 6, so ten reaches the pins.",
+  "program": [
+    "nop [5]",
+    "in pins, 4",
+    "mov osr, isr",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "shift_isr_right": false},
+  "stimulus": [[2, 10]]
+}

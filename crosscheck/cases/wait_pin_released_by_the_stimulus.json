@@ -1,0 +1,15 @@
+{
+  "name": "wait_pin_released_by_the_stimulus",
+  "description": "WAIT PIN stalls until GPIO 0, driven from outside, reaches the awaited level (datasheet 3.4.3.2): the program follows the input, high from cycle 6 and low again from cycle 11.",
+  "program": [
+    "wait 1 pin 0",
+    "set pins, 1",
+    "wait 0 pin 0",
+    "set pins, 0"
+  ],
+  "cycles": 18,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 1},
+  "stimulus": [[6, 1], [11, 0]]
+}

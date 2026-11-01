@@ -71,14 +71,21 @@ Discovery. With several probes connected, choose one with `--probe <unique id>` 
   trigger sample is taken to be the sample at which the effect of cycle 0 appears.
 - The analyzer buffer limits the capture length: check `digital_input.buffer_size_max` for your
   device and keep `cycles * sample_rate / cycle_rate` below it.
-- Stimulus from the pattern generator runs on the Analog Discovery's clock, which is
-  asynchronous to the state machine. Starting it from a trigger on the marker edge should fix
-  its timing relative to the capture; until that is verified, only use stimulus cases with
-  generous timing margins.
+- Stimulus: the pattern generator plays one bit per analyzer sample on DIO0 - DIO7. It is
+  triggered by the analyzer's detector on the marker edge and starts a constant 9 samples
+  (`PATTERN_LATENCY`, 180 ns) later. A stimulus change "from cycle N" is an edge half a cycle
+  before cycle N starts, so the state machine sees it in cycle N and not in the cycle before.
+  The analyzer records the driven pins as well, so every run checks that each edge landed within
+  two samples of where it belongs and fails with a `StimulusTimingError` if it did not. The
+  earliest cycle at which the stimulus can change is 2; an entry at cycle 0 gives the initial
+  level.
+- The pads of an RP2350 are isolated until a function is selected for them, and an isolated pad
+  reads as low to the PIO. The runner therefore enables GP0 - GP7 as inputs with a pull-down, so
+  a pin that nothing drives reads as low.
 
-## Not yet verified on this hardware
+## Measured on this hardware
 
-- Logic levels have been confirmed compatible by the user; nothing has been connected or captured.
-- The sample rate and buffer depth of the first-generation Analog Discovery.
-- `capture()` in `analog_discovery.py` against this device.
-- Triggering the pattern generator from the marker edge.
+- The first-generation Analog Discovery's logic analyzer buffer holds 4096 samples; at 10 samples
+  per state machine cycle a capture can cover roughly 400 cycles.
+- The pattern generator reaches the pins 9 samples after the marker edge, every time.
+- Both state machines start on the same clock (checked on the raw samples).

@@ -218,11 +218,13 @@ class FakePio:
 
 
 class FakePin:
+    IN = 0
     OUT = 1
+    PULL_DOWN = 2
     created: list = []
 
-    def __init__(self, number, mode, value=None):
-        FakePin.created.append((number, mode, value))
+    def __init__(self, number, mode, pull=None, value=None):
+        FakePin.created.append((number, mode, pull, value))
 
 
 class FakeMem32(dict):
@@ -288,7 +290,16 @@ class TestDeviceRunner:
         module.setup(build_spec(make_case()))
 
         assert fake_machine.mem32[module.PIO0_IRQ] == 0xFF  # write-1-to-clear of every flag
-        assert FakePin.created == [(pin, FakePin.OUT, 0) for pin in range(8, 15)]
+        assert FakePin.created[:7] == [(pin, FakePin.OUT, None, 0) for pin in range(8, 15)]
+
+    def test_setup_enables_the_stimulus_pins_as_pulled_down_inputs(self, device_runner):
+        module, _ = device_runner
+
+        module.setup(build_spec(make_case()))
+
+        assert FakePin.created[7:] == [
+            (pin, FakePin.IN, FakePin.PULL_DOWN, None) for pin in range(0, 8)
+        ]
 
     def test_start_enables_and_synchronises_both_state_machines_with_one_write(self, device_runner):
         module, fake_machine = device_runner

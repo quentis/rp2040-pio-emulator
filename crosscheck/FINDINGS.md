@@ -49,8 +49,8 @@ targets, `IRQ` set/clear/wait and `WAIT IRQ` (clearing, stalling, delay). See `c
   at a 5 MHz state machine clock a pin that was just set is seen by the very next instruction
   (`jmp_pin_sees_self_driven_pin_at_once`, `wait_pin_sees_self_driven_pin_at_once`). Seeing the
   latency needs the state machine at full speed and an analyzer sampling at several hundred MHz.
-- **`IN_BASE`** (D9) and pin ranges that wrap after GPIO 31: the runner does not configure
-  `IN_BASE` and the pins are wired only for GP8 - GP14.
+- **Pin ranges that wrap after GPIO 31**: the Pico 2 has no GPIO 30 or 31, so this is covered by
+  unit tests only. `IN_BASE` (D9) is covered by `in_pins_reads_from_in_base` and its siblings.
 - **Flags changed from outside while a program runs** (I3, I4), `IRQ PREV/NEXT` (RP2350 only),
   `MOV PINDIRS`, FIFO joining, `OUT_STICKY`, `INLINE_OUT_EN`, `SIDE_PINDIR`: not supported by the
   case format yet.

@@ -5,7 +5,7 @@ capture() needs a connected device and the WaveForms runtime and has not been ex
 against real hardware yet; samples_to_trace() is pure and covered by unit tests.
 """
 import time
-from typing import Callable, Sequence
+from typing import Callable, Mapping, Sequence
 
 from .trace import Trace
 
@@ -72,12 +72,17 @@ def capture(
     start: Callable[[], None],
     prefill: int = 16,
     timeout: float = 5.0,
+    drive: Mapping[int, tuple[int, Sequence[int]]] | None = None,
 ) -> list[int]:
     """
     Arms the logic analyzer, calls `start` (which makes the Pico produce the trigger edge),
     waits for a rising edge on trigger_pin and returns the samples.
 
     The trigger sample sits at index `prefill` of the result.
+
+    `drive` maps channels to (idle level, bits): the pattern generator holds each channel at its
+    idle level and plays the bits, one per analyzer sample, once the trigger fires. The analyzer
+    sees the driven channels too.
     """
     import dwfpy
 
@@ -96,6 +101,20 @@ def capture(
         logic.buffer_size = sample_count
         logic.setup_edge_trigger(trigger_pin, "rising")
         logic.setup_trigger(position=sample_count - prefill, prefill=prefill)
+
+        if drive:
+            generator = device.digital_output
+            generator.reset()
+            generator.setup_trigger(source="detector-digital-in")
+            for channel, (idle_level, bits) in drive.items():
+                generator[channel].setup_custom(
+                    frequency=sample_rate,
+                    data=list(bits),
+                    idle_state="high" if idle_level else "low",
+                    repetition=1,
+                )
+            generator.configure(start=True)
+
         logic.configure(start=True)
 
         start()

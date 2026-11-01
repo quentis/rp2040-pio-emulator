@@ -14,6 +14,8 @@ PIO0_CTRL = 0x50200000  # PIO0 CTRL register; SM_ENABLE is bits 3:0
 PIO0_IRQ = 0x50200030  # PIO0 IRQ flags 7:0; writing 1 clears a flag
 INSTRUCTION_MEMORY = 32
 NOP = 0xA042  # mov y, y
+FIRST_STIMULUS_PIN = 0
+LAST_STIMULUS_PIN = 7
 FIRST_CASE_PIN = 8
 LAST_CASE_PIN = 14
 CASE_SM = 0
@@ -46,6 +48,12 @@ def setup(spec):
     machine.mem32[PIO0_IRQ] = 0xFF
     for pin in range(FIRST_CASE_PIN, LAST_CASE_PIN + 1):
         machine.Pin(pin, machine.Pin.OUT, value=0)
+
+    # The pads of an RP2350 are isolated until a function is selected for them, and an isolated
+    # pad reads as low to the PIO. MicroPython only enables the base pin of an input mapping, so
+    # enable all the inputs here; the pull-down makes an input that nothing drives read as low.
+    for pin in range(FIRST_STIMULUS_PIN, LAST_STIMULUS_PIN + 1):
+        machine.Pin(pin, machine.Pin.IN, machine.Pin.PULL_DOWN)
 
     # The SDK places programs from the top of the 32-word instruction memory downwards, but
     # OUT PC, OUT EXEC and MOV EXEC use absolute addresses, which must mean what they mean in
