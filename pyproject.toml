@@ -30,9 +30,10 @@ dev = [
     "mypy (==2.3.1)",
     "adafruit-circuitpython-pioasm (==1.3.8)",
 ]
-# Only needed to capture traces from an Analog Discovery; the crosscheck tests run without it.
+# Only needed to flash the Pico and capture traces on the bench; the crosscheck tests run without it.
 hardware = [
     "dwfpy (==1.2.0)",
+    "pyocd (==0.46.0)",
 ]
 
 [tool.poetry]

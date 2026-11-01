@@ -1,17 +1,17 @@
 """
 Downloads the latest stable MicroPython firmware for the Pico 2 and flashes it through a
-Raspberry Pi Debug Probe (SWD) with probe-rs.
+Raspberry Pi Debug Probe (CMSIS-DAP, SWD) with pyOCD.
 
     python -m crosscheck.flash_micropython             # download, flash, reset
     python -m crosscheck.flash_micropython --dry-run   # show what would be done
     python -m crosscheck.flash_micropython --file fw.uf2
 
-Requires probe-rs on the PATH. micropython.org publishes no checksums, so the download is only
-as trustworthy as the HTTPS connection; the flashed image is verified against the file.
+Requires pyocd (the 'hardware' dependency group). micropython.org publishes no checksums, so the
+download is only as trustworthy as the HTTPS connection. pyOCD resets the board after
+programming; this script does not read the image back for an extra verification.
 """
 import argparse
 import re
-import shutil
 import struct
 import subprocess
 import sys
@@ -20,8 +20,7 @@ from pathlib import Path
 from urllib.parse import urljoin
 
 DOWNLOAD_PAGE = "https://micropython.org/download/RPI_PICO2/"
-CHIP = "RP235x"
-DEBUG_PROBE = "2e8a:000c"  # Raspberry Pi Debug Probe (VID:PID)
+TARGET = "rp2350"  # pyOCD built-in target
 
 UF2_MAGIC_START0 = 0x0A324655
 UF2_MAGIC_START1 = 0x9E5D5157
@@ -113,17 +112,16 @@ def fetch_firmware(cache_dir: Path) -> Path:
     return path
 
 
-def flash_commands(
-    binary: Path, base: int, *, chip: str, probe: str, verify: bool
-) -> list[list[str]]:
-    probe_args = ["--chip", chip, "--probe", probe, "--non-interactive"]
-    download = [
-        "probe-rs", "download", str(binary),
-        "--binary-format", "bin", "--base-address", f"0x{base:08X}",
-        *(["--verify"] if verify else []),
-        *probe_args,
+def flash_command(binary: Path, base: int, *, target: str, probe: str | None) -> list[str]:
+    """The pyOCD command that programs the binary at `base` and resets the board."""
+    return [
+        sys.executable, "-m", "pyocd", "load", str(binary),
+        "--target", target,
+        "--format", "bin",
+        "--base-address", f"0x{base:08X}",
+        "--no-wait",  # fail at once if no probe is connected
+        *(["--uid", probe] if probe else []),
     ]  # fmt: skip
-    return [download, ["probe-rs", "reset", *probe_args]]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -135,14 +133,13 @@ def main(argv: list[str] | None = None) -> int:
         default=Path.home() / ".cache" / "pioemu-crosscheck",
         help="where downloaded firmware is kept (default: %(default)s)",
     )
-    parser.add_argument("--probe", default=DEBUG_PROBE, help="VID:PID[:serial] (default: %(default)s)")
-    parser.add_argument("--chip", default=CHIP, help="probe-rs chip name (default: %(default)s)")
-    parser.add_argument("--no-verify", action="store_true", help="skip read-back verification")
-    parser.add_argument("--dry-run", action="store_true", help="print the commands, flash nothing")
+    parser.add_argument(
+        "--probe",
+        help="pyOCD probe unique ID (see 'pyocd list'); needed when several probes are connected",
+    )
+    parser.add_argument("--target", default=TARGET, help="pyOCD target (default: %(default)s)")
+    parser.add_argument("--dry-run", action="store_true", help="print the command, flash nothing")
     args = parser.parse_args(argv)
-
-    if not args.dry_run and not shutil.which("probe-rs"):
-        parser.error("probe-rs not found on the PATH")
 
     uf2 = args.file or fetch_firmware(args.cache_dir)
     base, image = uf2_to_bin(uf2.read_bytes())
@@ -151,12 +148,10 @@ def main(argv: list[str] | None = None) -> int:
     binary = uf2.with_suffix(".bin")
     binary.write_bytes(image)
 
-    for command in flash_commands(
-        binary, base, chip=args.chip, probe=args.probe, verify=not args.no_verify
-    ):
-        print("$", " ".join(command))
-        if not args.dry_run:
-            subprocess.run(command, check=True)
+    command = flash_command(binary, base, target=args.target, probe=args.probe)
+    print("$", " ".join(command))
+    if not args.dry_run:
+        subprocess.run(command, check=True)
 
     return 0
 

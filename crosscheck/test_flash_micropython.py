@@ -6,7 +6,7 @@ import pytest
 from .flash_micropython import (
     RP2350_ARM_SECURE,
     find_latest_firmware,
-    flash_commands,
+    flash_command,
     main,
     uf2_to_bin,
 )
@@ -83,16 +83,20 @@ class TestUf2ToBin:
             uf2_to_bin(uf2_block(0x1000_0000, b"\x01", family=0x1234))
 
 
-def test_flash_commands_download_then_reset():
-    download, reset = flash_commands(
-        Path("fw.bin"), 0x1000_0000, chip="RP235x", probe="2e8a:000c", verify=True
-    )
+def test_flash_command_loads_the_binary_at_the_base_address():
+    command = flash_command(Path("fw.bin"), 0x1000_0000, target="rp2350", probe=None)
 
-    assert download[:2] == ["probe-rs", "download"]
-    assert "--verify" in download
-    assert download[download.index("--base-address") + 1] == "0x10000000"
-    assert download[download.index("--probe") + 1] == "2e8a:000c"
-    assert reset[:2] == ["probe-rs", "reset"]
+    assert command[1:4] == ["-m", "pyocd", "load"]
+    assert command[command.index("--target") + 1] == "rp2350"
+    assert command[command.index("--format") + 1] == "bin"
+    assert command[command.index("--base-address") + 1] == "0x10000000"
+    assert "--uid" not in command
+
+
+def test_flash_command_selects_the_given_probe():
+    command = flash_command(Path("fw.bin"), 0x1000_0000, target="rp2350", probe="ABC123")
+
+    assert command[command.index("--uid") + 1] == "ABC123"
 
 
 def test_dry_run_converts_but_does_not_flash(tmp_path, capsys):
@@ -102,4 +106,4 @@ def test_dry_run_converts_but_does_not_flash(tmp_path, capsys):
     assert main(["--file", str(uf2), "--dry-run"]) == 0
 
     assert (tmp_path / "fw.bin").read_bytes() == b"\x01\x02\x03"
-    assert "$ probe-rs download" in capsys.readouterr().out
+    assert "-m pyocd load" in capsys.readouterr().out

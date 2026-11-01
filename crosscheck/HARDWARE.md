@@ -50,14 +50,15 @@ Connect the Raspberry Pi Debug Probe's SWD port to the Pico 2's three-pin DEBUG 
 
 ```
 python -m crosscheck.flash_micropython --dry-run   # show what would be done
-python -m crosscheck.flash_micropython             # download, flash, verify, reset
+python -m crosscheck.flash_micropython             # download, flash, reset
 ```
 
 The script downloads the newest stable (non-RISC-V) Pico 2 build from micropython.org, converts
-the UF2 to a flat binary and flashes it at 0x10000000 with `probe-rs`. It selects the probe by
-VID:PID `2e8a:000c`, because `probe-rs` also lists the Analog Discovery (an FTDI device) as a
-debug probe and must not be pointed at it. Use `--probe` for a different probe and `--file`
-for a UF2 you already have.
+the UF2 to a flat binary and flashes it at 0x10000000 with [pyOCD](https://pyocd.io)
+(`pip install pyocd`, in the `hardware` dependency group), which resets the board afterwards.
+pyOCD only drives CMSIS-DAP, ST-Link and J-Link probes, so it never picks up the Analog
+Discovery. With several probes connected, choose one with `--probe <unique id>` (see
+`pyocd list`). Use `--file` for a UF2 you already have.
 
 ## Capture timing
 
