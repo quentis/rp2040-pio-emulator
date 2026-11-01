@@ -53,7 +53,7 @@ def emulate(
     side_set_opt: bool = False,
     jmp_pin: int = 0,
     wrap_target: int = 0,
-    wrap_top: int = 0,
+    wrap_top: int | None = None,
 ) -> Generator[Tuple[State, State], None, None]:
     """
     Create and return a generator for emulating the given PIO program.
@@ -159,7 +159,8 @@ def emulate(
         irq_flags=_irq_flags,
     )
 
-    wrap_top = wrap_top or len(opcodes) - 1
+    if wrap_top is None:
+        wrap_top = len(opcodes) - 1
 
     current_state = initial_state if initial_state else State()
     stalled = False

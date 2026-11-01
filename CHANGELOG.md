@@ -1,7 +1,9 @@
 # Changelog
 
 ## Unreleased Version
-- No changes
+
+### Changed
+- Fixed `wrap_top=0`, which was treated as not given: a wrap range that ends at the first instruction is now honoured.
 
 ## 0.88.0 (2026-08-28)
 

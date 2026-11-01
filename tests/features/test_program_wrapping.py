@@ -41,3 +41,19 @@ def test_wrapping():
     ]
 
     assert x_register_series == [0, 1, 2, 1]
+
+
+def test_wrapping_within_a_single_instruction():
+    opcodes = [0xE021, 0xE022]  # set x, 1; set x, 2
+
+    x_register_series = [
+        state.x_register
+        for _, state in emulate(
+            opcodes,
+            wrap_target=0,
+            wrap_top=0,
+            stop_when=lambda _, state: state.clock == 3,
+        )
+    ]
+
+    assert x_register_series == [1, 1, 1]
