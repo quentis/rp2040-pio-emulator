@@ -458,10 +458,15 @@ class InstructionDecoder:
 
     def _decode_wait(self, instruction: WaitInstruction) -> Emulation:
         if instruction.source in (0, 1):  # GPIO or PIN
+            pin = instruction.index
+
+            if instruction.source == 1:  # PIN is relative to IN_BASE and wraps after GPIO 31
+                pin = (pin + self._in_base) & 31
+
             if instruction.polarity:
-                condition = partial(gpio_high, instruction.index)
+                condition = partial(gpio_high, pin)
             else:
-                condition = partial(gpio_low, instruction.index)
+                condition = partial(gpio_low, pin)
 
             return Emulation(
                 always,

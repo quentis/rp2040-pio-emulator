@@ -154,3 +154,30 @@ def test_wait_0_irq_rel_stalls_when_flag_set():
         )
     )
     assert state.program_counter == 0
+
+
+@pytest.mark.parametrize(
+    "opcode, pin_values, in_base, expected_program_counter",
+    [
+        pytest.param(0x20A1, 0b10_0000_0000, 8, 1, id="wait 1 pin, 1 passes on GPIO 9"),
+        pytest.param(0x20A1, 0b00_0000_0010, 8, 0, id="wait 1 pin, 1 ignores GPIO 1"),
+        pytest.param(0x20A2, 0x0000_0002, 31, 1, id="wait 1 pin, 2 wraps round to GPIO 1"),
+        pytest.param(0x20A2, 0x8000_0000, 31, 0, id="wait 1 pin, 2 does not look at GPIO 31"),
+        pytest.param(0x2081, 0b10, 8, 1, id="wait 1 gpio, 1 ignores in_base"),
+        pytest.param(0x2081, 0b10_0000_0000, 8, 0, id="wait 1 gpio, 1 does not follow in_base"),
+    ],
+)
+def test_wait_pin_is_relative_to_in_base(
+    opcode: int, pin_values: int, in_base: int, expected_program_counter: int
+):
+    _, new_state = next(
+        emulate(
+            [opcode, Opcodes.nop()],
+            initial_state=State(pin_values=pin_values),
+            stop_when=clock_cycles_reached(1),
+            in_base=in_base,
+        )
+    )
+
+    assert new_state.program_counter == expected_program_counter
+

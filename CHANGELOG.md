@@ -19,6 +19,7 @@
 - Autopush stalls the `IN` that reaches the push threshold when the RX FIFO is full, instead of the `IN` after it.
 - `PULL IFEMPTY` treats the OSR as empty once `pull_threshold` bits have been shifted out, instead of only after 32.
 - `PUSH IFFULL` treats the ISR as full once `push_threshold` bits have been shifted in, instead of only after 32.
+- `WAIT PIN` is relative to `in_base` and wraps after GPIO 31; `WAIT GPIO` stays absolute.
 
 ## 0.88.0 (2026-08-28)
 
