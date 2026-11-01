@@ -5,8 +5,12 @@ pyserial is imported lazily so that the rest of the framework works without the 
 dependency group.
 """
 import re
+import time
 from dataclasses import dataclass
 from typing import Callable
+
+_CHUNK = 256
+_CHUNK_PAUSE = 0.01
 
 # USB vendor and product ID of MicroPython's serial port on the Pico. The Debug Probe's UART
 # bridge and the bootloader use other product IDs and are not matched.
@@ -98,7 +102,11 @@ class RawRepl:
 
     def exec(self, code: str) -> str:
         """Runs code on the board and returns what it printed."""
-        self._stream.write(code.encode())
+        # The board has a small input buffer, so send in chunks (as MicroPython's pyboard.py does).
+        data = code.encode()
+        for offset in range(0, len(data), _CHUNK):
+            self._stream.write(data[offset : offset + _CHUNK])
+            time.sleep(_CHUNK_PAUSE)
         self._stream.write(b"\x04")
 
         self._expect(b"OK")

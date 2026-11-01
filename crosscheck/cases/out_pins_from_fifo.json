@@ -9,8 +9,8 @@
     "out pins, 1"
   ],
   "cycles": 5,
-  "observed_pins": [0],
-  "pin_directions": 1,
-  "config": {"out_base": 0, "out_count": 1},
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"out_base": 8, "out_count": 1},
   "tx_fifo": [10]
 }

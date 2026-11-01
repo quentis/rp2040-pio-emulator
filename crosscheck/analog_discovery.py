@@ -5,7 +5,7 @@ capture() needs a connected device and the WaveForms runtime and has not been ex
 against real hardware yet; samples_to_trace() is pure and covered by unit tests.
 """
 import time
-from typing import Sequence
+from typing import Callable, Sequence
 
 from .trace import Trace
 
@@ -60,11 +60,13 @@ def capture(
     trigger_pin: int,
     sample_rate: float,
     sample_count: int,
+    start: Callable[[], None],
     prefill: int = 16,
     timeout: float = 5.0,
 ) -> list[int]:
     """
-    Arms the logic analyzer, waits for a rising edge on trigger_pin and returns the samples.
+    Arms the logic analyzer, calls `start` (which makes the Pico produce the trigger edge),
+    waits for a rising edge on trigger_pin and returns the samples.
 
     The trigger sample sits at index `prefill` of the result.
     """
@@ -73,12 +75,21 @@ def capture(
     with dwfpy.Device() as device:
         logic = device.digital_input
         logic.reset()
+
+        if sample_count > logic.buffer_size_max:
+            raise ValueError(
+                f"capture of {sample_count} samples exceeds the analyzer buffer "
+                f"({logic.buffer_size_max}); run fewer cycles or sample more slowly"
+            )
+
         logic.sample_rate = sample_rate
         logic.sample_format = 16
         logic.buffer_size = sample_count
         logic.setup_edge_trigger(trigger_pin, "rising")
         logic.setup_trigger(position=sample_count - prefill, prefill=prefill)
         logic.configure(start=True)
+
+        start()
 
         deadline = time.monotonic() + timeout
         while logic.read_status(read_data=True) != dwfpy.Status.DONE:

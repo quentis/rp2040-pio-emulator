@@ -2,5 +2,5 @@
   "case": "side_set_delay",
   "source": "hand-derived",
   "notes": "Derived from the instruction semantics; not yet captured from hardware.",
-  "trace": {"observed_pins": [0], "values": [1, 1, 0, 1, 1, 0]}
+  "trace": {"observed_pins": [8], "values": [1, 1, 0, 1, 1, 0]}
 }

@@ -6,7 +6,7 @@
     "set pins, 0 [1]"
   ],
   "cycles": 10,
-  "observed_pins": [0],
-  "pin_directions": 1,
-  "config": {"set_base": 0, "set_count": 1}
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"set_base": 8, "set_count": 1}
 }

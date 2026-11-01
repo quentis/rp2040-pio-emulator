@@ -7,7 +7,7 @@
     "nop side 0"
   ],
   "cycles": 6,
-  "observed_pins": [0],
-  "pin_directions": 1,
-  "config": {"side_set_base": 0}
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"side_set_base": 8}
 }

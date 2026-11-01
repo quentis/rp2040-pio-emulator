@@ -13,6 +13,17 @@ Discovery (via [dwfpy](https://dwfpy.readthedocs.io)), and compares per-cycle pi
 - `analog_discovery.py` - `capture()` records the logic analyzer, `samples_to_trace()` reduces
   the raw samples to one value per state machine cycle.
 - `test_golden_traces.py` - the emulator must reproduce every golden trace. No hardware needed.
+- `hardware.py` - runs a case on the Pico 2: `build_spec()` turns the assembled case into
+  plain data (EXECCTRL/SHIFTCTRL words, pin lists), `run_on_hardware()` sends it to the board
+  and records the pins.
+- `device_runner.py` - the MicroPython code that runs on the board. It loads the case on one
+  state machine and a marker program on another, and enables both with a single write to the
+  PIO control register so they start on the same clock.
+- `capture_golden.py` - checks cases on hardware against their golden traces, or records them.
+- `pico.py`, `firmware.py`, `flash_micropython.py` - serial link, firmware check, flashing.
+
+Cases that run on hardware must observe and drive GP8 - GP14 (see HARDWARE.md), configure their
+OUT/SET/side-set pin groups explicitly, and use no stimulus yet.
 
 ```
 python -m pytest crosscheck
@@ -33,11 +44,25 @@ MicroPython serial port and asks what it runs. If MicroPython at least as new as
 flashed through the Debug Probe, overwriting whatever the board ran, so use a board dedicated
 to this. A busy serial port, or a board that is not a Pico 2, stops the run without flashing.
 
-## Not done yet
+To compare the board with the committed goldens, or to record hardware goldens:
 
-- The MicroPython runner that loads a case, configures the state machine and runs it. The
-  firmware check and the serial (raw REPL) client exist, but have only been tested against fakes.
-- A capture script tying the firmware and `capture()` together to write `source: hardware`
-  golden traces, including calibration of `first_cycle_sample`.
-- `capture()` has not been run against a real Analog Discovery.
-- RP2350 differs slightly from RP2040 in PIO; only use cases within the common subset.
+```
+python -m crosscheck.capture_golden            # check
+python -m crosscheck.capture_golden --write    # record
+```
+
+## Not verified on hardware
+
+Everything on the hardware side has so far been tested only against fakes:
+
+- the raw REPL client, the firmware check and the flashing;
+- that the board's PIO accepts the program lists `build_spec()` produces (the layout follows
+  MicroPython's `rp2` module: instructions, three load offsets, EXECCTRL, SHIFTCTRL, pin lists);
+- `capture()` on the first-generation Analog Discovery, including how its trigger position
+  relates to `first_cycle_sample` (assumed: the trigger sample is the one where cycle 0 takes
+  effect) and the size of its buffer;
+- that the case and marker state machines really start on the same clock.
+
+Not implemented: pin stimulus from the Analog Discovery's pattern generator, reading back
+FIFO and register state, and the `IN` instruction (`in_base` is not a case setting). RP2350
+differs slightly from RP2040 in PIO; only use cases within the common subset.

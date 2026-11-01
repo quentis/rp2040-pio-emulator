@@ -65,9 +65,10 @@ Discovery. With several probes connected, choose one with `--probe <unique id>` 
 - Run the state machine slowly, for example 10 MHz, so the analyzer takes several samples per
   state machine cycle. `analog_discovery.samples_to_trace()` needs at least two samples per
   cycle and samples in the middle of each cycle.
-- The marker edge on GP15 triggers the capture. Ideally a second state machine in the same
-  PIO block drives it and both are enabled with one write to the PIO control register, so
-  that they start on the same clock.
+- The marker edge on GP15 triggers the capture. A second state machine in the same PIO block
+  drives it, and `device_runner.start()` enables both state machines with one write to the PIO0
+  control register so that they start on the same clock. The marker rises in cycle 0, so the
+  trigger sample is taken to be the sample at which the effect of cycle 0 appears.
 - The analyzer buffer limits the capture length: check `digital_input.buffer_size_max` for your
   device and keep `cycles * sample_rate / cycle_rate` below it.
 - Stimulus from the pattern generator runs on the Analog Discovery's clock, which is
