@@ -1,0 +1,17 @@
+{
+  "name": "push_iffull_below_the_push_threshold",
+  "description": "PUSH IFFULL does nothing while the shift count is below PUSH_THRESH: seven bits in with a threshold of eight leave the RX FIFO empty, so the status is all ones.",
+  "program": [
+    "in null, 7",
+    "push iffull noblock",
+    "mov x, status",
+    "mov osr, x",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "push_threshold": 8, "status_sel": 1, "status_n": 1}
+}

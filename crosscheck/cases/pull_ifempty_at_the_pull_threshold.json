@@ -1,0 +1,17 @@
+{
+  "name": "pull_ifempty_at_the_pull_threshold",
+  "description": "PULL IFEMPTY loads when the shift count has reached PULL_THRESH (datasheet 3.4.7.2): eight bits shifted out with a threshold of eight, so the second word replaces the first.",
+  "program": [
+    "pull block",
+    "out null, 8",
+    "pull ifempty noblock",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "pull_threshold": 8},
+  "tx_fifo": [170, 187]
+}
