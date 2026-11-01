@@ -1,0 +1,13 @@
+{
+  "name": "wait_pin_is_relative_to_in_base",
+  "description": "WAIT PIN counts from IN_BASE (datasheet 3.4.3.2): with IN_BASE 8, 'wait 1 pin 1' waits on GPIO 9, which the program has just set, so it passes at once.",
+  "program": [
+    "set pins, 2",
+    "wait 1 pin 1",
+    "set pins, 3"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 2, "in_base": 8}
+}

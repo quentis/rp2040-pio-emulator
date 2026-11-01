@@ -92,6 +92,12 @@ def build_spec(case: Case, program: AssembledProgram | None = None) -> dict:
     if "jmp_pin" in settings:
         pins["jmp_pin"] = settings["jmp_pin"]
 
+    if "in_base" in settings:
+        if not 0 <= settings["in_base"] <= OBSERVABLE_PINS[-1]:
+            raise ValueError(f"case {case.name!r}: in_base must lie within GP0 - GP{OBSERVABLE_PINS[-1]}")
+
+        pins["in_base"] = settings["in_base"]
+
     # EXECCTRL (RP2350 layout): SIDE_EN (30), WRAP_TOP (16:12), WRAP_BOTTOM (11:7), STATUS_SEL
     # (6:5), STATUS_N (4:0). The side-set pin count and the pins' initial state come from the pin
     # lists, the load offset is added on the board.

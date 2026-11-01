@@ -84,6 +84,15 @@ class TestBuildSpec:
         assert (shiftctrl >> 17) & 1 == 1  # autopull
         assert (shiftctrl >> 16) & 1 == 0  # no autopush
 
+    def test_in_base_is_passed_to_the_state_machine(self):
+        case = make_case(config={"set_base": 8, "set_count": 1, "in_base": 8})
+
+        assert build_spec(case)["case"]["pins"] == {"set_base": 8, "in_base": 8}
+
+    def test_in_base_beyond_the_wired_pins_is_rejected(self):
+        with pytest.raises(ValueError, match="in_base"):
+            build_spec(make_case(config={"set_base": 8, "set_count": 1, "in_base": 15}))
+
     def test_status_settings_go_into_execctrl(self):
         case = make_case(config={"set_base": 8, "set_count": 1, "status_sel": 1, "status_n": 3})
 

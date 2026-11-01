@@ -1,0 +1,16 @@
+{
+  "name": "mov_x_pins_reads_from_in_base",
+  "description": "MOV from PINS reads 32 pins starting at IN_BASE (datasheet 3.4.8.2): with IN_BASE 8 the low five bits are the five pins just set to 21.",
+  "program": [
+    "set pins, 21",
+    "mov x, pins",
+    "mov osr, ~x",
+    "out pins, 5",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 5, "out_base": 8, "out_count": 5, "in_base": 8}
+}
