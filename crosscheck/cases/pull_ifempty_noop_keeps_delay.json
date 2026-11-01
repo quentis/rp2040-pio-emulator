@@ -1,0 +1,14 @@
+{
+  "name": "pull_ifempty_noop_keeps_delay",
+  "description": "PULL IFEMPTY that does nothing because the OSR is not empty still waits out its delay (datasheet 3.2.4: only a stall defers the delay).",
+  "program": [
+    "pull block",
+    "pull ifempty noblock [3]",
+    "set pins, 1"
+  ],
+  "cycles": 12,
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"set_base": 8, "set_count": 1},
+  "tx_fifo": [170]
+}

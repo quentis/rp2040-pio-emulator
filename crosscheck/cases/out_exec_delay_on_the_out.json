@@ -1,0 +1,15 @@
+{
+  "name": "out_exec_delay_on_the_out",
+  "description": "The delay of the OUT EXEC itself (datasheet 3.4.5.2, 3.2.4): shows where the executed instruction falls relative to the delay cycles.",
+  "program": [
+    "pull block",
+    "out exec, 16 [2]",
+    "set pins, 2",
+    "set pins, 3"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2},
+  "tx_fifo": [57345]
+}

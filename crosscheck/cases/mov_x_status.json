@@ -1,0 +1,14 @@
+{
+  "name": "mov_x_status",
+  "description": "MOV X, STATUS with the reset configuration (TX level < 0) gives zero, which MOV PINS then writes (datasheet 3.4.8.2).",
+  "program": [
+    "set pins, 1",
+    "set x, 1",
+    "mov x, status",
+    "mov pins, x"
+  ],
+  "cycles": 8,
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"set_base": 8, "set_count": 1, "out_base": 8, "out_count": 1}
+}

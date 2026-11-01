@@ -1,0 +1,14 @@
+{
+  "name": "out_32_bits_to_a_narrower_group",
+  "description": "OUT PINS, 32 shifts the whole OSR but writes only OUT_COUNT pins (datasheet 3.4.5.2); the second one finds the OSR shifted out.",
+  "program": [
+    "pull block",
+    "out pins, 32",
+    "out pins, 32"
+  ],
+  "cycles": 8,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7},
+  "tx_fifo": [45]
+}

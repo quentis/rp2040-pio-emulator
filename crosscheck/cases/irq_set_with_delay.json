@@ -1,0 +1,12 @@
+{
+  "name": "irq_set_with_delay",
+  "description": "IRQ NOWAIT with a delay waits out the delay (datasheet 3.2.4).",
+  "program": [
+    "irq 1 [3]",
+    "set pins, 1"
+  ],
+  "cycles": 12,
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"set_base": 8, "set_count": 1}
+}

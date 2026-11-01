@@ -1,0 +1,12 @@
+{
+  "name": "mov_pins_uses_out_mapping",
+  "description": "MOV PINS writes the OUT pin group (OUT_BASE, OUT_COUNT), not GPIO 0 upwards (datasheet 3.4.8.2, 3.5.6): 31 written to a three-pin group at GP10 sets GP10 - GP12.",
+  "program": [
+    "set x, 31",
+    "mov pins, x"
+  ],
+  "cycles": 6,
+  "observed_pins": [8, 9, 10, 11, 12],
+  "pin_directions": 7168,
+  "config": {"out_base": 10, "out_count": 3}
+}

@@ -1,0 +1,15 @@
+{
+  "name": "irq_wait_on_cleared_flag_stalls",
+  "description": "WAIT 1 IRQ clears the flag when it passes (datasheet 3.4.3.2): the second WAIT on the same flag never completes.",
+  "program": [
+    "irq 0",
+    "wait 1 irq 0",
+    "set pins, 1",
+    "wait 1 irq 0",
+    "set pins, 2"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2}
+}

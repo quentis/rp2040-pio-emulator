@@ -1,0 +1,15 @@
+{
+  "name": "irq_clear_cancels_set",
+  "description": "IRQ CLEAR lowers a flag that was set (datasheet 3.4.9.2): the following WAIT 1 stalls.",
+  "program": [
+    "set pins, 1",
+    "irq 3",
+    "irq clear 3",
+    "wait 1 irq 3",
+    "set pins, 2"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2}
+}

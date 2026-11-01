@@ -1,0 +1,12 @@
+{
+  "name": "delay_of_31_cycles",
+  "description": "The largest delay, 31 cycles, holds the pin for 32 cycles (datasheet 3.2.4).",
+  "program": [
+    "set pins, 1 [31]",
+    "set pins, 0"
+  ],
+  "cycles": 40,
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"set_base": 8, "set_count": 1}
+}

@@ -1,0 +1,17 @@
+{
+  "name": "pull_with_autopull_osr_partly_shifted",
+  "description": "PULL with autopull enabled is a no-op while the OSR still holds unshifted data (datasheet 3.4.7.2 note), not only while it is untouched: after three bits are shifted out of 0xAA the second PULL must not load 0xBB.",
+  "program": [
+    "pull block",
+    "out null, 3",
+    "pull block",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true},
+  "tx_fifo": [170, 187]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "autopush_stalls_when_rx_full",
+  "description": "Autopush stalls the IN that reaches the threshold when the RX FIFO is full (datasheet 3.5.4.1): the fifth IN never completes.",
+  "program": [
+    "in null, 8",
+    "set pins, 1",
+    "in null, 8",
+    "set pins, 2",
+    "in null, 8",
+    "set pins, 3",
+    "in null, 8",
+    "set pins, 4",
+    "in null, 8",
+    "set pins, 5"
+  ],
+  "cycles": 16,
+  "observed_pins": [8, 9, 10],
+  "pin_directions": 1792,
+  "config": {"set_base": 8, "set_count": 3, "auto_push": true, "push_threshold": 8}
+}

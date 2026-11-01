@@ -1,0 +1,20 @@
+{
+  "name": "push_noblock_discards_when_rx_full",
+  "description": "PUSH NOBLOCK on a full RX FIFO discards the data and continues (datasheet 3.4.6.2).",
+  "program": [
+    "push noblock",
+    "set pins, 1",
+    "push noblock",
+    "set pins, 2",
+    "push noblock",
+    "set pins, 3",
+    "push noblock",
+    "set pins, 4",
+    "push noblock",
+    "set pins, 5"
+  ],
+  "cycles": 16,
+  "observed_pins": [8, 9, 10],
+  "pin_directions": 1792,
+  "config": {"set_base": 8, "set_count": 3}
+}

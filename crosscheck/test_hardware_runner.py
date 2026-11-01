@@ -188,12 +188,24 @@ class FakeStateMachine:
 
 class FakePio:
     removed = 0
+    programs: list = []
 
     def __init__(self, index):
         assert index == 0
 
     def remove_program(self):
         FakePio.removed += 1
+
+    def add_program(self, program):
+        FakePio.programs.append(program)
+
+
+class FakePin:
+    OUT = 1
+    created: list = []
+
+    def __init__(self, number, mode, value=None):
+        FakePin.created.append((number, mode, value))
 
 
 class FakeMem32(dict):
@@ -207,7 +219,9 @@ def device_runner(monkeypatch):
     from types import SimpleNamespace
 
     FakePio.removed = 0
-    fake_machine = SimpleNamespace(mem32=FakeMem32())
+    FakePio.programs = []
+    FakePin.created = []
+    fake_machine = SimpleNamespace(mem32=FakeMem32(), Pin=FakePin)
     fake_rp2 = SimpleNamespace(StateMachine=FakeStateMachine, PIO=FakePio)
     monkeypatch.setitem(sys.modules, "machine", fake_machine)
     monkeypatch.setitem(sys.modules, "rp2", fake_rp2)
@@ -233,6 +247,31 @@ class TestDeviceRunner:
         assert marker_sm.pins == {"set_base": 15}
         assert case_sm.freq == marker_sm.freq == hardware.FREQ
         assert FakePio.removed == 1
+
+    def test_setup_leaves_exactly_enough_room_for_the_case_at_address_zero(self, device_runner):
+        module, _ = device_runner
+
+        module.setup(build_spec(make_case(program=["nop"] * 5)))
+
+        (filler,) = FakePio.programs
+        # 5 case + 2 marker + filler fill the 32 words, so the case can only go to address 0
+        assert len(filler[0]) == 32 - 5 - 2
+
+    def test_setup_adds_no_filler_when_the_memory_is_already_full(self, device_runner):
+        module, _ = device_runner
+
+        module.setup(build_spec(make_case(program=["nop"] * 30)))
+
+        assert FakePio.programs == []
+
+    def test_setup_clears_irq_flags_and_drives_the_case_pins_low(self, device_runner):
+        module, fake_machine = device_runner
+        fake_machine.mem32[module.PIO0_IRQ] = 0x05
+
+        module.setup(build_spec(make_case()))
+
+        assert fake_machine.mem32[module.PIO0_IRQ] == 0xFF  # write-1-to-clear of every flag
+        assert FakePin.created == [(pin, FakePin.OUT, 0) for pin in range(8, 15)]
 
     def test_start_enables_and_synchronises_both_state_machines_with_one_write(self, device_runner):
         module, fake_machine = device_runner

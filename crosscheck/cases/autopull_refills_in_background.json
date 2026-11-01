@@ -1,0 +1,19 @@
+{
+  "name": "autopull_refills_in_background",
+  "description": "With autopull the OSR is refilled whenever it is empty and the FIFO has data, also on cycles that execute no OUT (datasheet 3.5.4.2): after a NOP, JMP !OSRE is taken.",
+  "program": [
+    "nop",
+    "jmp !osre taken",
+    "set pins, 1",
+    "jmp end",
+    "taken:",
+    "set pins, 2",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2, "auto_pull": true},
+  "tx_fifo": [204]
+}

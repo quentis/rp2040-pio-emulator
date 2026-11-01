@@ -1,0 +1,15 @@
+{
+  "name": "side_set_two_pins",
+  "description": "A two-bit side-set drives two adjacent pins (datasheet 3.5.1).",
+  "program": [
+    ".side_set 2",
+    "nop side 1",
+    "nop side 2",
+    "nop side 3",
+    "nop side 0"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"side_set_base": 8}
+}

@@ -1,0 +1,17 @@
+{
+  "name": "jmp_y_decrement_loop",
+  "description": "The same with Y.",
+  "program": [
+    "set y, 1",
+    "loop:",
+    "set pins, 1",
+    "set pins, 0",
+    "jmp y-- loop",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 12,
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"set_base": 8, "set_count": 1}
+}

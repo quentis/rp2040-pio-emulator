@@ -1,0 +1,16 @@
+{
+  "name": "out_exec_jmp",
+  "description": "An executed JMP changes the program counter (datasheet 3.4.5.2): the word 0x0004 is 'jmp 4', which skips the first two SETs.",
+  "program": [
+    "pull block",
+    "out exec, 16",
+    "set pins, 1",
+    "set pins, 2",
+    "set pins, 3"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2},
+  "tx_fifo": [4]
+}

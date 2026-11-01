@@ -1,0 +1,18 @@
+{
+  "name": "jmp_not_y_nonzero",
+  "description": "JMP !Y falls through when Y is not zero.",
+  "program": [
+    "set y, 1",
+    "jmp !y zero",
+    "set pins, 1",
+    "jmp end",
+    "zero:",
+    "set pins, 2",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2}
+}

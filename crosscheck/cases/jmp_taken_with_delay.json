@@ -1,0 +1,14 @@
+{
+  "name": "jmp_taken_with_delay",
+  "description": "A taken JMP waits out its delay before the target executes (datasheet 3.4.2.2, 3.2.4).",
+  "program": [
+    "jmp skip [3]",
+    "set pins, 2",
+    "skip:",
+    "set pins, 1"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2}
+}

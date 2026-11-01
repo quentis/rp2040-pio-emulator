@@ -1,0 +1,14 @@
+{
+  "name": "side_set_while_stalled",
+  "description": "Side-set takes effect on the first cycle of an instruction even if that instruction then stalls (datasheet 3.5.1): PULL BLOCK on an empty FIFO with 'side 1'.",
+  "program": [
+    ".side_set 1",
+    "nop side 0",
+    "pull block side 1",
+    "nop side 0"
+  ],
+  "cycles": 10,
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"side_set_base": 8}
+}

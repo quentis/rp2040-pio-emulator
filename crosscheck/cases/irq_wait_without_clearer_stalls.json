@@ -1,0 +1,13 @@
+{
+  "name": "irq_wait_without_clearer_stalls",
+  "description": "IRQ WAIT raises the flag and stalls until another agent lowers it (datasheet 3.4.9.2): nothing does here.",
+  "program": [
+    "set pins, 1",
+    "irq wait 1",
+    "set pins, 2"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2}
+}

@@ -1,0 +1,14 @@
+{
+  "name": "wrap_top_at_address_zero",
+  "description": "A wrap range of a single instruction at address 0 keeps the program on that instruction (datasheet 3.5.? EXECCTRL WRAP_TOP): GP8 stays 1 and 'set pins, 2' is never reached.",
+  "program": [
+    ".wrap_target",
+    "set pins, 1",
+    ".wrap",
+    "set pins, 2"
+  ],
+  "cycles": 8,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2}
+}

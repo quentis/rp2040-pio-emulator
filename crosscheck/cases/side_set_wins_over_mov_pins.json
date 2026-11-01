@@ -1,0 +1,12 @@
+{
+  "name": "side_set_wins_over_mov_pins",
+  "description": "Side-set takes precedence over MOV PINS on the same pin.",
+  "program": [
+    ".side_set 1",
+    "mov pins, null side 1"
+  ],
+  "cycles": 6,
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"out_base": 8, "out_count": 1, "side_set_base": 8}
+}

@@ -1,0 +1,16 @@
+{
+  "name": "pull_with_autopull_osr_full",
+  "description": "PULL with autopull enabled and the OSR full is a no-op (datasheet 3.4.7.2 note): the second PULL must not replace 0xAA with 0xBB.",
+  "program": [
+    "pull block",
+    "pull block",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true},
+  "tx_fifo": [170, 187]
+}

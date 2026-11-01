@@ -1,0 +1,13 @@
+{
+  "name": "mov_invert",
+  "description": "MOV with the invert operator complements all 32 bits (datasheet 3.4.8.2): ~5 is 0xFFFFFFFA, whose low seven bits reach the pins through the OSR.",
+  "program": [
+    "set x, 5",
+    "mov osr, ~x",
+    "out pins, 7"
+  ],
+  "cycles": 8,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7}
+}

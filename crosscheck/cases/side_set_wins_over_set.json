@@ -1,0 +1,12 @@
+{
+  "name": "side_set_wins_over_set",
+  "description": "Side-set takes precedence over SET on the same pin (datasheet 3.5.6): the pin ends high.",
+  "program": [
+    ".side_set 1",
+    "set pins, 0 side 1"
+  ],
+  "cycles": 6,
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"set_base": 8, "set_count": 1, "side_set_base": 8}
+}

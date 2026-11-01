@@ -19,7 +19,15 @@ def test_every_case_has_a_golden_trace_and_vice_versa():
     assert case_names == golden_names
 
 
-@pytest.mark.parametrize("case", CASES, ids=lambda case: case.name)
+def _expect_failure_if_known(case):
+    marks = []
+    if case.known_emulator_difference:
+        marks.append(pytest.mark.xfail(strict=True, reason=case.known_emulator_difference))
+
+    return pytest.param(case, id=case.name, marks=marks)
+
+
+@pytest.mark.parametrize("case", [_expect_failure_if_known(case) for case in CASES])
 def test_emulator_reproduces_golden_trace(case):
     golden = load_golden(golden_path(HERE / "golden", case.name))
     assert golden.case == case.name

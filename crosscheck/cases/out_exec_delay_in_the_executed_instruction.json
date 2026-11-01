@@ -1,0 +1,15 @@
+{
+  "name": "out_exec_delay_in_the_executed_instruction",
+  "description": "The delay field of the executed instruction itself (datasheet 3.4.5.2): the word 0xE301 is 'set pins, 1 [3]'.",
+  "program": [
+    "pull block",
+    "out exec, 16",
+    "set pins, 2",
+    "set pins, 3"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2},
+  "tx_fifo": [58113]
+}

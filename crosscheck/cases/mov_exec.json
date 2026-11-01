@@ -1,0 +1,15 @@
+{
+  "name": "mov_exec",
+  "description": "MOV EXEC runs the register value as an instruction (datasheet 3.4.8.2): the word 0xE001 is 'set pins, 1'.",
+  "program": [
+    "pull block",
+    "mov exec, osr",
+    "set pins, 2",
+    "set pins, 3"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2},
+  "tx_fifo": [57345]
+}

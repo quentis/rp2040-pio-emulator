@@ -1,0 +1,15 @@
+{
+  "name": "jmp_at_wrap_top_is_not_wrapped",
+  "description": "A taken JMP at the wrap top goes to its target, not to the wrap target (datasheet 3.5.2).",
+  "program": [
+    "set pins, 1",
+    ".wrap_target",
+    "set pins, 2",
+    "jmp 0",
+    ".wrap"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2}
+}

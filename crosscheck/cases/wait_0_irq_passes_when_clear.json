@@ -1,0 +1,13 @@
+{
+  "name": "wait_0_irq_passes_when_clear",
+  "description": "WAIT 0 IRQ passes at once when the flag is low (datasheet 3.4.3.2).",
+  "program": [
+    "set pins, 1",
+    "wait 0 irq 4",
+    "set pins, 3"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2}
+}

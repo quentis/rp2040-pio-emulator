@@ -1,0 +1,17 @@
+{
+  "name": "jmp_x_decrement_loop",
+  "description": "A JMP X-- loop with X = 2 runs its body three times (datasheet 3.4.2.2): three pulses.",
+  "program": [
+    "set x, 2",
+    "loop:",
+    "set pins, 1",
+    "set pins, 0",
+    "jmp x-- loop",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 16,
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"set_base": 8, "set_count": 1}
+}

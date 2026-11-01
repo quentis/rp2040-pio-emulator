@@ -1,0 +1,14 @@
+{
+  "name": "pull_ifempty_keeps_a_full_osr",
+  "description": "PULL IFEMPTY does nothing while the OSR still holds data (datasheet 3.4.7.2): the first word stays, the second is not loaded.",
+  "program": [
+    "pull block",
+    "pull ifempty noblock",
+    "out pins, 7"
+  ],
+  "cycles": 8,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7},
+  "tx_fifo": [1, 2]
+}

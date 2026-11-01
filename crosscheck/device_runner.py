@@ -11,6 +11,11 @@ import rp2
 from array import array
 
 PIO0_CTRL = 0x50200000  # PIO0 CTRL register; SM_ENABLE is bits 3:0
+PIO0_IRQ = 0x50200030  # PIO0 IRQ flags 7:0; writing 1 clears a flag
+INSTRUCTION_MEMORY = 32
+NOP = 0xA042  # mov y, y
+FIRST_CASE_PIN = 8
+LAST_CASE_PIN = 14
 CASE_SM = 0
 MARKER_SM = 1
 
@@ -36,8 +41,25 @@ def setup(spec):
     stop()
     rp2.PIO(0).remove_program()
 
-    case_sm = _state_machine(CASE_SM, spec["case"], spec["freq"])
+    # Leave nothing of the previous case behind: IRQ flags survive a state machine restart, and
+    # pins keep the level and direction that the last program gave them.
+    machine.mem32[PIO0_IRQ] = 0xFF
+    for pin in range(FIRST_CASE_PIN, LAST_CASE_PIN + 1):
+        machine.Pin(pin, machine.Pin.OUT, value=0)
+
+    # The SDK places programs from the top of the 32-word instruction memory downwards, but
+    # OUT PC, OUT EXEC and MOV EXEC use absolute addresses, which must mean what they mean in
+    # the emulator. Fill the top with NOPs so that the marker lands just below them and the case
+    # program, loaded last, falls to address 0.
+    case_length = len(spec["case"]["opcodes"])
+    marker_length = len(spec["marker"]["opcodes"])
+    filler_length = INSTRUCTION_MEMORY - marker_length - case_length
+    if filler_length > 0:
+        filler = [array("H", [NOP] * filler_length), -1, -1, -1, 0, 0, 0, 0, 0]
+        rp2.PIO(0).add_program(filler)
+
     marker_sm = _state_machine(MARKER_SM, spec["marker"], spec["freq"])
+    case_sm = _state_machine(CASE_SM, spec["case"], spec["freq"])
 
     for word in spec["tx_fifo"]:
         case_sm.put(word)

@@ -1,0 +1,17 @@
+{
+  "name": "pull_block_stalls_when_tx_empty",
+  "description": "PULL BLOCK stalls on an empty TX FIFO (datasheet 3.4.7.2): with two words queued the third pull never completes, so the pins stop at 2.",
+  "program": [
+    "pull block",
+    "set pins, 1",
+    "pull block",
+    "set pins, 2",
+    "pull block",
+    "set pins, 3"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9, 10],
+  "pin_directions": 1792,
+  "config": {"set_base": 8, "set_count": 3},
+  "tx_fifo": [1, 2]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "out_exec_stalled_instruction",
+  "description": "An executed instruction that stalls holds the state machine (datasheet 3.4.5.2, 3.5.? EXEC_STALLED): the word 0x20C0 is 'wait 1 irq 0', which nothing satisfies, so 'set pins, 2' never runs.",
+  "program": [
+    "set pins, 1",
+    "pull block",
+    "out exec, 16",
+    "set pins, 2"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2},
+  "tx_fifo": [8384]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "out_isr_sets_isr_and_counter",
+  "description": "OUT ISR copies bits into the ISR (datasheet 3.4.5.2); MOV OSR, ISR and OUT PINS read it back.",
+  "program": [
+    "pull block",
+    "out isr, 7",
+    "mov osr, isr",
+    "out pins, 7"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7},
+  "tx_fifo": [171]
+}

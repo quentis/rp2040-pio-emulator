@@ -1,0 +1,19 @@
+{
+  "name": "jmp_not_osre_right_after_autopull_crossing",
+  "description": "The OSR is refilled in the cycle after the OUT that empties it (datasheet 3.5.4.2), so a JMP !OSRE straight after that OUT still sees it empty and is not taken: GP8 rises, not GP9.",
+  "program": [
+    "out null, 8",
+    "jmp !osre full",
+    "set pins, 1",
+    "jmp end",
+    "full:",
+    "set pins, 2",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2, "auto_pull": true, "pull_threshold": 8},
+  "tx_fifo": [170, 187]
+}

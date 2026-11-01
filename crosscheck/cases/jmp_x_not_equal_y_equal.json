@@ -1,0 +1,19 @@
+{
+  "name": "jmp_x_not_equal_y_equal",
+  "description": "JMP X!=Y falls through when the registers are equal.",
+  "program": [
+    "set x, 5",
+    "set y, 5",
+    "jmp x!=y differ",
+    "set pins, 1",
+    "jmp end",
+    "differ:",
+    "set pins, 2",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2}
+}

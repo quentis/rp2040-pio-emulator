@@ -1,0 +1,30 @@
+{
+  "name": "jmp_pin_sees_self_driven_pin_at_once",
+  "description": "JMP PIN reads the pad (datasheet 3.4.2.2) through an input synchroniser that adds two system clocks (3.5.6.3), which is invisible at the 5 MHz state machine clock used here: the very next instruction already sees the pin that was just set. The ladder would show any extra latency.",
+  "program": [
+    "set pins, 1",
+    "jmp pin s0",
+    "jmp pin s1",
+    "jmp pin s2",
+    "jmp pin s3",
+    "set pins, 30",
+    "jmp end",
+    "s0:",
+    "set pins, 2",
+    "jmp end",
+    "s1:",
+    "set pins, 4",
+    "jmp end",
+    "s2:",
+    "set pins, 8",
+    "jmp end",
+    "s3:",
+    "set pins, 16",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 16,
+  "observed_pins": [8, 9, 10, 11, 12],
+  "pin_directions": 7936,
+  "config": {"set_base": 8, "set_count": 5, "jmp_pin": 8}
+}

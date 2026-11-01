@@ -1,0 +1,16 @@
+{
+  "name": "out_pc_jumps",
+  "description": "OUT PC jumps to the shifted-out address (datasheet 3.4.5.2): address 4 skips two SETs.",
+  "program": [
+    "pull block",
+    "out pc, 5",
+    "set pins, 1",
+    "set pins, 2",
+    "set pins, 3"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2},
+  "tx_fifo": [4]
+}

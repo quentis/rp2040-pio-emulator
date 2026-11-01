@@ -56,6 +56,10 @@ class Case:
     stimulus : list[list[int]]
         [cycle, pin_values] pairs: from the given cycle onwards the externally driven pins
         take the given GPIO bit mask value. Empty if nothing drives the pins externally.
+    known_emulator_difference : str
+        Non-empty if pioemu is known not to reproduce the golden trace; says why. The golden
+        test then expects the emulator to fail (strictly: it fails once the emulator is fixed,
+        as the cue to remove this note).
     """
 
     name: str
@@ -67,6 +71,7 @@ class Case:
     config: dict[str, int | bool] = field(default_factory=dict)
     tx_fifo: list[int] = field(default_factory=list)
     stimulus: list[list[int]] = field(default_factory=list)
+    known_emulator_difference: str = ""
 
     def __post_init__(self):
         unknown = set(self.config) - CONFIG_KEYS

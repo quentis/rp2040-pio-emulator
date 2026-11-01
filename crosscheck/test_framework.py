@@ -23,6 +23,12 @@ class TestCase:
     def test_observed_mask(self):
         assert make_case(observed_pins=[0, 3, 31]).observed_mask == 0x8000_0009
 
+    def test_known_emulator_difference_round_trips(self):
+        case = make_case(known_emulator_difference="D1: something")
+
+        assert Case.from_dict(case.to_dict()).known_emulator_difference == "D1: something"
+        assert make_case().known_emulator_difference == ""
+
     def test_source_joins_program_lines(self):
         assert make_case(program=["nop", "nop"]).source == "nop\nnop\n"
 

@@ -1,0 +1,12 @@
+{
+  "name": "push_iffull_noop_keeps_delay",
+  "description": "PUSH IFFULL that does nothing because the ISR is not full still waits out its delay (datasheet 3.2.4).",
+  "program": [
+    "push iffull noblock [3]",
+    "set pins, 1"
+  ],
+  "cycles": 12,
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"set_base": 8, "set_count": 1}
+}

@@ -1,0 +1,15 @@
+{
+  "name": "jmp_not_taken_with_delay",
+  "description": "A JMP that is not taken still waits out its delay.",
+  "program": [
+    "set x, 0",
+    "jmp x-- skip [3]",
+    "set pins, 1",
+    "skip:",
+    "nop"
+  ],
+  "cycles": 12,
+  "observed_pins": [8],
+  "pin_directions": 256,
+  "config": {"set_base": 8, "set_count": 1}
+}

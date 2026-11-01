@@ -1,0 +1,14 @@
+{
+  "name": "in_32_bits_into_isr",
+  "description": "IN X, 32 replaces the whole ISR with X (datasheet 3.4.4.2).",
+  "program": [
+    "set x, 21",
+    "in x, 32",
+    "mov osr, isr",
+    "out pins, 7"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7}
+}

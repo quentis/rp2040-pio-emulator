@@ -1,0 +1,13 @@
+{
+  "name": "pull_noblock_on_empty_fifo_copies_x",
+  "description": "PULL NOBLOCK on an empty TX FIFO copies X into the OSR (datasheet 3.4.7.2): 21 reaches the pins.",
+  "program": [
+    "set x, 21",
+    "pull noblock",
+    "out pins, 7"
+  ],
+  "cycles": 8,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7}
+}

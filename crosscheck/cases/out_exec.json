@@ -1,0 +1,15 @@
+{
+  "name": "out_exec",
+  "description": "OUT EXEC runs the shifted-out 16 bits as an instruction (datasheet 3.4.5.2): the word 0xE001 is 'set pins, 1'.",
+  "program": [
+    "pull block",
+    "out exec, 16",
+    "set pins, 2",
+    "set pins, 3"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2},
+  "tx_fifo": [57345]
+}

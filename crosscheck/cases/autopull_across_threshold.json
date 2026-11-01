@@ -1,0 +1,16 @@
+{
+  "name": "autopull_across_threshold",
+  "description": "Autopull refills the OSR once the threshold of 8 bits has been shifted out (datasheet 3.5.4.2): three 7-bit OUTs cross the boundary between the two queued words.",
+  "program": [
+    "out pins, 7",
+    "out pins, 7",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 10,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true, "pull_threshold": 8},
+  "tx_fifo": [85, 42]
+}

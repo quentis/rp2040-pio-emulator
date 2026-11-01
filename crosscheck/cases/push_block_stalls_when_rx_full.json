@@ -1,0 +1,20 @@
+{
+  "name": "push_block_stalls_when_rx_full",
+  "description": "PUSH BLOCK stalls when the four-entry RX FIFO is full (datasheet 3.4.6.2): the fifth push never completes, so the pins stop at 4.",
+  "program": [
+    "push block",
+    "set pins, 1",
+    "push block",
+    "set pins, 2",
+    "push block",
+    "set pins, 3",
+    "push block",
+    "set pins, 4",
+    "push block",
+    "set pins, 5"
+  ],
+  "cycles": 16,
+  "observed_pins": [8, 9, 10],
+  "pin_directions": 1792,
+  "config": {"set_base": 8, "set_count": 3}
+}

@@ -1,0 +1,13 @@
+{
+  "name": "wait_pin_sees_self_driven_pin_at_once",
+  "description": "WAIT PIN reads the pad (datasheet 3.4.3.2); the input synchroniser's two system clocks (3.5.6.3) are invisible at a 5 MHz state machine clock: the wait on GP8 passes in the very next cycle after GP8 was set.",
+  "program": [
+    "set pins, 1",
+    "wait 1 pin 8",
+    "set pins, 3"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2}
+}

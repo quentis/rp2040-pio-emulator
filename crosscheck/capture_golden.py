@@ -50,13 +50,24 @@ def main(argv: list[str] | None = None) -> int:
         trace = hardware.run_on_hardware(case, port)
         path = golden_path(HERE / "golden", case.name)
 
-        against_golden = compare(load_golden(path).trace, trace)
-        against_emulator = compare(run_on_emulator(case), trace)
+        if not path.exists():
+            if not args.write:
+                print(f"{case.name}: no golden trace yet (use --write)")
+                differences += 1
+                continue
+
+            against_golden = []
+        else:
+            against_golden = compare(load_golden(path).trace, trace)
+        try:
+            against_emulator = compare(run_on_emulator(case), trace)
+            emulator_status = "emulator agrees" if not against_emulator else "emulator differs"
+        except RuntimeError as error:  # the emulation ended early
+            emulator_status = f"emulator failed ({error})"
 
         golden_status = (
             "matches golden" if not against_golden else f"{len(against_golden)} cycles differ from golden"
         )
-        emulator_status = "emulator agrees" if not against_emulator else "emulator differs"
         print(f"{case.name}: {golden_status}; {emulator_status}")
         if against_golden:
             print(format_mismatches(trace, against_golden))

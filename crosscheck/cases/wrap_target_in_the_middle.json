@@ -1,0 +1,15 @@
+{
+  "name": "wrap_target_in_the_middle",
+  "description": "After the wrap top the program continues at the wrap target, not at address 0.",
+  "program": [
+    "set pins, 1",
+    ".wrap_target",
+    "set pins, 2",
+    "set pins, 3",
+    ".wrap"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 768,
+  "config": {"set_base": 8, "set_count": 2}
+}
