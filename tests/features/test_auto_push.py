@@ -35,6 +35,23 @@ from ..support import instruction_param
             expected_program_counter=0,  # Should stall when threshold reached
         ),
 
+        # Test PIO stalls the IN that reaches the threshold, rather than the one after it
+        instruction_param(
+            "in null, 8",
+            0x4068,
+            State(receive_fifo=deque([1, 2, 3, 4]), input_shift_register=ShiftRegister(5, 24)),
+            State(receive_fifo=deque([1, 2, 3, 4]), input_shift_register=ShiftRegister(5, 24)),
+            expected_program_counter=0,  # Should stall when threshold would be reached
+        ),
+
+        # Test PIO does not stall an IN that stays below the threshold when the FIFO is full
+        instruction_param(
+            "in null, 8",
+            0x4068,
+            State(receive_fifo=deque([1, 2, 3, 4]), input_shift_register=ShiftRegister(0x0500, 16)),
+            State(receive_fifo=deque([1, 2, 3, 4]), input_shift_register=ShiftRegister(0x05, 24)),
+        ),
+
         instruction_param(
             "in null, 32",
             0x4060,

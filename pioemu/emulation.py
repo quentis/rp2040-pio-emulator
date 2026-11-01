@@ -205,13 +205,14 @@ def emulate(
 
         condition_met = emulation.condition(current_state)
         if condition_met:
-            # Stall the state machine if it attempts to automatically push the contents of the ISR
-            # into a full FIFO. Please refer to the Autopush Details section (3.5.4.1) within the
+            # Stall the state machine if the IN reaches the push threshold and it therefore
+            # attempts to automatically push the contents of the ISR into a full FIFO. Please refer to the Autopush Details section (3.5.4.1) within the
             # RP2040 Datasheet for more details.
             if (
                 isinstance(instruction, InInstruction)
                 and auto_push
-                and current_state.input_shift_register.counter >= push_threshold
+                and current_state.input_shift_register.counter + instruction.bit_count
+                >= push_threshold
                 and len(current_state.receive_fifo) >= 4
             ):
                 new_state = None
