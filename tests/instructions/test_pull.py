@@ -15,7 +15,7 @@ from collections import deque
 
 import pytest
 
-from pioemu import ShiftRegister, State
+from pioemu import ShiftRegister, State, clock_cycles_reached, emulate
 
 from ..support import emulate_single_instruction, instruction_param
 
@@ -102,3 +102,31 @@ def test_transmit_fifo_in_before_state_remains_unaffected():
     )
 
     assert before_state.transmit_fifo == deque([0xDEAD_BEEF])
+
+
+@pytest.mark.parametrize(
+    "shift_count, expected_output_shift_register, expected_transmit_fifo",
+    [
+        pytest.param(7, ShiftRegister(0xAA, 7), deque([0xBB]), id="below the pull threshold"),
+        pytest.param(8, ShiftRegister(0xBB, 0), deque(), id="at the pull threshold"),
+        pytest.param(20, ShiftRegister(0xBB, 0), deque(), id="above the pull threshold"),
+    ],
+)
+def test_pull_if_empty_respects_the_pull_threshold(
+    shift_count: int, expected_output_shift_register: ShiftRegister, expected_transmit_fifo
+):
+    pull_ifempty_noblock = 0x80C0
+
+    _, new_state = next(
+        emulate(
+            [pull_ifempty_noblock, 0xA042],
+            initial_state=State(
+                transmit_fifo=deque([0xBB]), output_shift_register=ShiftRegister(0xAA, shift_count)
+            ),
+            stop_when=clock_cycles_reached(1),
+            pull_threshold=8,
+        )
+    )
+
+    assert new_state.output_shift_register == expected_output_shift_register
+    assert new_state.transmit_fifo == expected_transmit_fifo

@@ -78,9 +78,6 @@ def input_shift_register_full(state: State) -> bool:
     return state.input_shift_register.counter == 32
 
 
-def output_shift_register_empty(state: State) -> bool:
-    return state.output_shift_register.counter == 32
-
 
 def output_shift_register_threshold_reached(threshold: int, state: State) -> bool:
     return state.output_shift_register.counter >= threshold

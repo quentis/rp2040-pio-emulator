@@ -22,7 +22,6 @@ from .conditions import (
     gpio_high,
     input_shift_register_full,
     negate,
-    output_shift_register_empty,
     output_shift_register_threshold_reached,
     x_register_equals_zero,
     x_register_not_equal_to_y_register,
@@ -412,7 +411,11 @@ class InstructionDecoder:
         )
 
     def _decode_pull(self, instruction: PullInstruction) -> Emulation:
-        condition = output_shift_register_empty if instruction.if_empty else always
+        condition = (
+            partial(output_shift_register_threshold_reached, self._pull_threshold)
+            if instruction.if_empty
+            else always
+        )
         pull = pull_blocking if instruction.block else pull_nonblocking
 
         def pull_unless_osr_full(state: State) -> State | None:
