@@ -169,6 +169,7 @@ def emulate(
         jmp_pin,
         auto_pull=auto_pull,
         pull_threshold=pull_threshold,
+        push_threshold=push_threshold,
         status_sel=status_sel,
         status_n=status_n,
         irq_handler=irq_handler,

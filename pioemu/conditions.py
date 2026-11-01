@@ -74,8 +74,8 @@ def x_register_not_equal_to_y_register(state: State) -> bool:
     return state.x_register != state.y_register
 
 
-def input_shift_register_full(state: State) -> bool:
-    return state.input_shift_register.counter == 32
+def input_shift_register_threshold_reached(threshold: int, state: State) -> bool:
+    return state.input_shift_register.counter >= threshold
 
 
 

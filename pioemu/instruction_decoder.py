@@ -20,7 +20,7 @@ from .conditions import (
     always,
     gpio_low,
     gpio_high,
-    input_shift_register_full,
+    input_shift_register_threshold_reached,
     negate,
     output_shift_register_threshold_reached,
     x_register_equals_zero,
@@ -92,6 +92,7 @@ class InstructionDecoder:
         *,
         auto_pull: bool = False,
         pull_threshold: int = 32,
+        push_threshold: int = 32,
         status_sel: int = 0,
         status_n: int = 0,
         irq_handler: Optional[Callable[[int, State], State]] = None,
@@ -119,7 +120,10 @@ class InstructionDecoder:
             is then a no-op while the OSR is full.
         pull_threshold : int
             Number of bits shifted out of the Output Shift Register (OSR) before it counts as
-            empty for the purposes of JMP !OSRE.
+            empty for the purposes of JMP !OSRE and PULL IFEMPTY.
+        push_threshold : int
+            Number of bits shifted into the Input Shift Register (ISR) before it counts as full
+            for the purposes of PUSH IFFULL.
         status_sel : int
             FIFO whose level MOV ... STATUS compares: 0 for the TX FIFO and 1 for the RX FIFO.
         status_n : int
@@ -134,6 +138,7 @@ class InstructionDecoder:
         self.set_count = set_count
         self._auto_pull = auto_pull
         self._pull_threshold = pull_threshold
+        self._push_threshold = push_threshold
         self._irq_handler: Callable[[int, State], State] = irq_handler or (
             lambda idx, state: state
         )
@@ -433,9 +438,12 @@ class InstructionDecoder:
             instruction,
         )
 
-    @staticmethod
-    def _decode_push(instruction: PushInstruction) -> Emulation:
-        condition = input_shift_register_full if instruction.if_full else always
+    def _decode_push(self, instruction: PushInstruction) -> Emulation:
+        condition = (
+            partial(input_shift_register_threshold_reached, self._push_threshold)
+            if instruction.if_full
+            else always
+        )
 
         return Emulation(
             condition,

@@ -17,6 +17,7 @@
 - Autopull refills the OSR in the background like the hardware: during the cycle after it empties, or during any cycle that does not write it, rather than at the end of the `OUT` that emptied it. An `OUT` straight after the emptying one stalls for a cycle, and `JMP !OSRE` treats an OSR that is about to be refilled as not empty.
 - Autopush stalls the `IN` that reaches the push threshold when the RX FIFO is full, instead of the `IN` after it.
 - `PULL IFEMPTY` treats the OSR as empty once `pull_threshold` bits have been shifted out, instead of only after 32.
+- `PUSH IFFULL` treats the ISR as full once `push_threshold` bits have been shifted in, instead of only after 32.
 
 ## 0.88.0 (2026-08-28)
 

@@ -15,7 +15,7 @@ from collections import deque
 
 import pytest
 
-from pioemu import ShiftRegister, State
+from pioemu import ShiftRegister, State, clock_cycles_reached, emulate
 
 from ..support import emulate_single_instruction, instruction_param
 
@@ -105,3 +105,29 @@ def test_receive_fifo_in_before_state_remains_unaffected():
     )
 
     assert before_state.receive_fifo == deque()
+
+
+@pytest.mark.parametrize(
+    "shift_count, expected_receive_fifo, expected_input_shift_register",
+    [
+        pytest.param(7, deque(), ShiftRegister(0xDEAD_BEEF, 7), id="below the push threshold"),
+        pytest.param(8, deque([0xDEAD_BEEF]), ShiftRegister(0, 0), id="at the push threshold"),
+        pytest.param(20, deque([0xDEAD_BEEF]), ShiftRegister(0, 0), id="above the push threshold"),
+    ],
+)
+def test_push_if_full_respects_the_push_threshold(
+    shift_count: int, expected_receive_fifo, expected_input_shift_register: ShiftRegister
+):
+    push_iffull_noblock = 0x8040
+
+    _, new_state = next(
+        emulate(
+            [push_iffull_noblock, 0xA042],
+            initial_state=State(input_shift_register=ShiftRegister(0xDEAD_BEEF, shift_count)),
+            stop_when=clock_cycles_reached(1),
+            push_threshold=8,
+        )
+    )
+
+    assert new_state.receive_fifo == expected_receive_fifo
+    assert new_state.input_shift_register == expected_input_shift_register
