@@ -92,12 +92,15 @@ def build_spec(case: Case, program: AssembledProgram | None = None) -> dict:
     if "jmp_pin" in settings:
         pins["jmp_pin"] = settings["jmp_pin"]
 
-    # EXECCTRL: SIDE_EN (30), WRAP_TOP (16:12), WRAP_BOTTOM (11:7). The side-set pin count and
-    # the pins' initial state come from the pin lists, the load offset is added on the board.
+    # EXECCTRL (RP2350 layout): SIDE_EN (30), WRAP_TOP (16:12), WRAP_BOTTOM (11:7), STATUS_SEL
+    # (6:5), STATUS_N (4:0). The side-set pin count and the pins' initial state come from the pin
+    # lists, the load offset is added on the board.
     execctrl = (
         flag("side_set_opt", False) << 30
         | settings["wrap_top"] << 12
         | settings["wrap_target"] << 7
+        | settings.get("status_sel", 0) << 5
+        | settings.get("status_n", 0)
     )
 
     # SHIFTCTRL: thresholds (32 is encoded as 0), shift directions (1 = right), auto-pull/push.

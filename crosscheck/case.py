@@ -21,6 +21,8 @@ CONFIG_KEYS = frozenset(
         "side_set_count",
         "side_set_opt",
         "jmp_pin",
+        "status_sel",
+        "status_n",
         "wrap_target",
         "wrap_top",
     }

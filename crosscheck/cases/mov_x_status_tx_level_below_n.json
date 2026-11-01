@@ -1,0 +1,21 @@
+{
+  "name": "mov_x_status_tx_level_below_n",
+  "description": "MOV X, STATUS gives all ones only while the TX FIFO holds fewer than STATUS_N words (datasheet 3.4.8.2): with two words queued and STATUS_N 2 the status is zero; after both words are pulled the level is 0 and the status is all ones, seven bits of which reach the pins.",
+  "program": [
+    "mov x, status",
+    "mov osr, x",
+    "out pins, 7",
+    "pull block",
+    "pull block",
+    "mov x, status",
+    "mov osr, x",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "status_sel": 0, "status_n": 2},
+  "tx_fifo": [1, 2]
+}

@@ -84,6 +84,14 @@ class TestBuildSpec:
         assert (shiftctrl >> 17) & 1 == 1  # autopull
         assert (shiftctrl >> 16) & 1 == 0  # no autopush
 
+    def test_status_settings_go_into_execctrl(self):
+        case = make_case(config={"set_base": 8, "set_count": 1, "status_sel": 1, "status_n": 3})
+
+        execctrl = build_spec(case)["case"]["execctrl"]
+
+        assert (execctrl >> 5) & 3 == 1  # STATUS_SEL: RX FIFO level
+        assert execctrl & 0x1F == 3  # STATUS_N
+
     def test_marker_state_machine_uses_the_marker_pin(self):
         marker = build_spec(make_case())["marker"]
 

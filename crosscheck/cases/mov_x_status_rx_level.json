@@ -1,0 +1,19 @@
+{
+  "name": "mov_x_status_rx_level",
+  "description": "With STATUS_SEL 1 MOV X, STATUS compares the RX FIFO level (datasheet 3.4.8.2): STATUS_N 1 and an empty RX FIFO give all ones; after a PUSH the level is 1 and the status is all zeroes.",
+  "program": [
+    "mov x, status",
+    "mov osr, x",
+    "out pins, 7",
+    "push noblock",
+    "mov x, status",
+    "mov osr, x",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "status_sel": 1, "status_n": 1}
+}
