@@ -14,7 +14,7 @@
 from dataclasses import replace
 from typing import Callable, Tuple
 
-from .bit_operations import update_bits_32
+from .bit_operations import rotate_right_32, update_bits_32
 from .shift_register import ShiftRegister
 from .state import State
 
@@ -70,10 +70,10 @@ def read_from_pin_directions(state: State) -> int:
     return state.pin_directions
 
 
-def read_from_pins(state: State) -> int:
-    """Reads the contents of the pin values register."""
+def read_from_pins(in_base: int, state: State) -> int:
+    """Reads the pin values register, starting from the pin given by in_base."""
 
-    return state.pin_values
+    return rotate_right_32(state.pin_values, in_base)
 
 
 def read_from_x(state: State) -> int:

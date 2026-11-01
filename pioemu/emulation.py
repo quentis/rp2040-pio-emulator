@@ -51,6 +51,7 @@ def emulate(
     side_set_count: int = 0,
     side_set_opt: bool = False,
     jmp_pin: int = 0,
+    in_base: int = 0,
     status_sel: int = 0,
     status_n: int = 0,
     wrap_target: int = 0,
@@ -95,6 +96,8 @@ def emulate(
         Number of consecutive pins to include within the side-set.
     jmp_pin : int, optional
         Pin that determines the branch taken by JMP PIN instructions.
+    in_base : int, optional
+        First pin read by IN PINS and MOV ... PINS instructions; pins wrap after GPIO 31.
     status_sel : int, optional
         FIFO compared by MOV ... STATUS: 0 for the TX FIFO or 1 for the RX FIFO.
     status_n : int, optional
@@ -135,6 +138,9 @@ def emulate(
     if set_count < 0 or set_count > 5:
         raise ValueError("emulate() invalid value for keyword argument: 'set_count'")
 
+    if in_base < 0 or in_base > 31:
+        raise ValueError("emulate() invalid value for keyword argument: 'in_base'")
+
     if status_sel not in (0, 1):
         raise ValueError("emulate() invalid value for keyword argument: 'status_sel'")
 
@@ -167,6 +173,7 @@ def emulate(
         set_base,
         set_count,
         jmp_pin,
+        in_base=in_base,
         auto_pull=auto_pull,
         pull_threshold=pull_threshold,
         push_threshold=push_threshold,

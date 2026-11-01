@@ -13,7 +13,7 @@
 # limitations under the License.
 import pytest
 
-from pioemu.bit_operations import update_bits_32
+from pioemu.bit_operations import rotate_right_32, update_bits_32
 
 
 @pytest.mark.parametrize(
@@ -35,3 +35,18 @@ def test_update_bits_32(
         update_bits_32(existing_value, new_value, bit_position, bit_count)
         == expected_value
     )
+
+
+@pytest.mark.parametrize(
+    "value, bit_count, expected_value",
+    [
+        pytest.param(0x1234_56AB, 0, 0x1234_56AB, id="rotate by nothing"),
+        pytest.param(0x1234_56AB, 8, 0xAB12_3456, id="rotate by 8"),
+        pytest.param(0x0000_0001, 1, 0x8000_0000, id="the lowest bit becomes the highest"),
+        pytest.param(0x1_0000_0003, 1, 0x8000_0001, id="only the lowest 32 bits count"),
+        pytest.param(0x0000_0010, 32, 0x0000_0010, id="rotate by 32 is the identity"),
+    ],
+)
+def test_rotate_right_32(value, bit_count, expected_value):
+    assert rotate_right_32(value, bit_count) == expected_value
+

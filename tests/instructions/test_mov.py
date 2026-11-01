@@ -324,3 +324,19 @@ def test_mov_exec_uses_only_the_low_sixteen_bits():
     )[1]
 
     assert state.exec_opcode == set_pins_1
+
+
+def test_mov_x_pins_reads_from_in_base():
+    mov_x_pins = 0xA020
+
+    _, new_state = next(
+        emulate(
+            [mov_x_pins],
+            initial_state=State(pin_values=0x1234_56AB),
+            stop_when=clock_cycles_reached(1),
+            in_base=8,
+        )
+    )
+
+    assert new_state.x_register == 0xAB12_3456
+

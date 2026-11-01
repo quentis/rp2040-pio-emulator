@@ -90,6 +90,7 @@ class InstructionDecoder:
         set_count: int,
         jmp_pin: int,
         *,
+        in_base: int = 0,
         auto_pull: bool = False,
         pull_threshold: int = 32,
         push_threshold: int = 32,
@@ -115,6 +116,8 @@ class InstructionDecoder:
             Number of consecutive pins to write for SET instructions.
         jmp_pin : int
             Pin that determines the branch taken by JMP PIN instructions.
+        in_base : int
+            First pin read by IN PINS and MOV ... PINS instructions.
         auto_pull : bool
             Whether the Output Shift Register (OSR) is refilled automatically; a PULL instruction
             is then a no-op while the OSR is full.
@@ -136,6 +139,7 @@ class InstructionDecoder:
         self.out_count = out_count
         self.set_base = set_base
         self.set_count = set_count
+        self._in_base = in_base
         self._auto_pull = auto_pull
         self._pull_threshold = pull_threshold
         self._push_threshold = push_threshold
@@ -167,7 +171,7 @@ class InstructionDecoder:
         ]
 
         self.in_sources: List[Callable[[State], int] | None] = [
-            read_from_pins,
+            partial(read_from_pins, in_base),
             read_from_x,
             read_from_y,
             supplies_value(0),
@@ -178,7 +182,7 @@ class InstructionDecoder:
         ]
 
         self.mov_sources: List[Callable[[State], int] | None] = [
-            read_from_pins,
+            partial(read_from_pins, in_base),
             read_from_x,
             read_from_y,
             supplies_value(0),

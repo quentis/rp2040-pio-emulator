@@ -27,3 +27,13 @@ def reverse_bits_32(value):
     """Reverses the order of the lowest 32 bits of a value."""
 
     return int(f"{value & 0xFFFF_FFFF:032b}"[::-1], 2)
+
+
+def rotate_right_32(value, bit_count):
+    """Rotates the lowest 32 bits of a value to the right."""
+
+    value &= 0xFFFF_FFFF
+    bit_count &= 31
+
+    return ((value >> bit_count) | (value << (32 - bit_count))) & 0xFFFF_FFFF
+

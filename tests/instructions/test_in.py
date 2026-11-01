@@ -70,3 +70,35 @@ def test_in_instruction_when_shifting_right(opcode: int, initial_state: State, e
     )
 
     assert new_state == expected_state
+
+
+@pytest.mark.parametrize(
+    "pin_values, in_base, bit_count, expected_input_shift_register",
+    [
+        pytest.param(0x0000_0A50, 4, 8, ShiftRegister(0xA500_0000, 8), id="starts at in_base"),
+        pytest.param(0xC000_0001, 30, 4, ShiftRegister(0x7000_0000, 4), id="wraps after GPIO 31"),
+        pytest.param(0x0000_00FF, 0, 4, ShiftRegister(0xF000_0000, 4), id="in_base of zero"),
+    ],
+)
+def test_in_pins_reads_from_in_base(
+    pin_values: int, in_base: int, bit_count: int, expected_input_shift_register: ShiftRegister
+):
+    in_pins = 0x4000 | bit_count
+
+    _, new_state = next(
+        emulate(
+            [in_pins, Opcodes.nop()],
+            initial_state=State(pin_values=pin_values),
+            stop_when=clock_cycles_reached(1),
+            in_base=in_base,
+        )
+    )
+
+    assert new_state.input_shift_register == expected_input_shift_register
+
+
+@pytest.mark.parametrize("in_base", [-1, 32])
+def test_emulate_rejects_an_invalid_in_base(in_base: int):
+    with pytest.raises(ValueError, match="in_base"):
+        next(emulate([Opcodes.nop()], stop_when=clock_cycles_reached(1), in_base=in_base))
+
