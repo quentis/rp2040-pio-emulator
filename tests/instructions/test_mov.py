@@ -286,3 +286,41 @@ def test_mov_x_status(state: State, status_sel: int, status_n: int, expected_x_r
 def test_emulate_rejects_invalid_status_settings(keyword: str, value: int):
     with pytest.raises(ValueError, match=keyword):
         next(emulate([0xA042], stop_when=clock_cycles_reached(1), **{keyword: value}))
+
+
+def test_mov_exec_executes_the_register_as_an_instruction_in_the_next_cycle():
+    mov_exec_x = 0xA081
+    set_pins_1 = 0xE001
+    set_pins_2 = 0xE002
+
+    states = [
+        state
+        for _, state in emulate(
+            [mov_exec_x, set_pins_2, 0xA042],
+            initial_state=State(x_register=set_pins_1),
+            stop_when=clock_cycles_reached(3),
+        )
+    ]
+
+    # The executed instruction does not advance the program counter
+    assert [(state.program_counter, state.pin_values) for state in states] == [
+        (1, 0),
+        (1, 1),
+        (2, 2),
+    ]
+    assert states[0].exec_opcode == set_pins_1
+
+
+def test_mov_exec_uses_only_the_low_sixteen_bits():
+    mov_exec_x = 0xA081
+    set_pins_1 = 0xE001
+
+    state = next(
+        emulate(
+            [mov_exec_x, 0xA042],
+            initial_state=State(x_register=0xFFFF_0000 | set_pins_1),
+            stop_when=clock_cycles_reached(1),
+        )
+    )[1]
+
+    assert state.exec_opcode == set_pins_1

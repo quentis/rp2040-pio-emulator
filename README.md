@@ -56,7 +56,7 @@ IN          | :heavy_check_mark:                |
 OUT         | :heavy_check_mark:                |
 PUSH        | :heavy_check_mark:                | 
 PULL        | :heavy_check_mark:                | 
-MOV         | :heavy_check_mark: :construction: | Some variants and operations not implemented
+MOV         | :heavy_check_mark:                | RP2350-only variants (such as `MOV PINDIRS`) not implemented
 IRQ         | :heavy_check_mark:                |
 SET         | :heavy_check_mark:                |
 
