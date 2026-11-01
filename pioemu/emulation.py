@@ -177,6 +177,15 @@ def emulate(
                 pin_values=masked_values | masked_input,
             )
 
+        # With autopull the hardware refills an empty OSR in the background, during the cycle
+        # that follows the one in which it became empty (or the first cycle, if it starts empty).
+        output_shift_register_at_start = current_state.output_shift_register
+        refill_osr = (
+            auto_pull
+            and output_shift_register_at_start.counter >= pull_threshold
+            and bool(current_state.transmit_fifo)
+        )
+
         opcode = opcodes[current_state.program_counter]
 
         (side_set_value, delay_value, apply_side_set) = _extract_delay_and_side_set_from_opcode(
@@ -235,9 +244,16 @@ def emulate(
             current_state,
             auto_push,
             push_threshold,
-            auto_pull,
-            pull_threshold,
         )
+
+        # The refill does not happen if the instruction wrote the OSR itself, e.g. a PULL.
+        if refill_osr and current_state.output_shift_register == output_shift_register_at_start:
+            updated_transmit_fifo = current_state.transmit_fifo.copy()
+            current_state = replace(
+                current_state,
+                transmit_fifo=updated_transmit_fifo,
+                output_shift_register=ShiftRegister(updated_transmit_fifo.popleft(), 0),
+            )
 
         # TODO: Check that the following still applies when an instruction is stalled
         if apply_side_set:
@@ -317,8 +333,6 @@ def _apply_side_effects(
     state: State,
     auto_push: bool,
     push_threshold: int,
-    auto_pull: bool,
-    pull_threshold: int,
 ) -> State:
     if (
         isinstance(instruction, InInstruction)
@@ -334,20 +348,6 @@ def _apply_side_effects(
             state,
             receive_fifo=new_receive_fifo,
             input_shift_register=new_input_shift_register,
-        )
-    elif (
-        isinstance(instruction, OutInstruction)
-        and auto_pull
-        and state.output_shift_register.counter >= pull_threshold
-        and state.transmit_fifo
-    ):
-        new_transmit_fifo = state.transmit_fifo.copy()
-        new_output_shift_register = ShiftRegister(new_transmit_fifo.popleft(), 0)
-
-        return replace(
-            state,
-            transmit_fifo=new_transmit_fifo,
-            output_shift_register=new_output_shift_register,
         )
     elif (opcode & 0xE0E0) == 0x0040:
         return replace(state, x_register=(state.x_register - 1) & 0xFFFF_FFFF)

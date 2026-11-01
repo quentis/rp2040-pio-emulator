@@ -9,6 +9,7 @@
 - The delay cycles of a `PULL IFEMPTY` or `PUSH IFFULL` that does nothing are no longer skipped.
 - `JMP !OSRE` treats the OSR as empty once `pull_threshold` bits have been shifted out, instead of only after 32.
 - `PULL` is a no-op while the OSR is full and `auto_pull` is enabled, instead of replacing the OSR contents.
+- Autopull refills the OSR in the background like the hardware: during the cycle after it empties, or during any cycle that does not write it, rather than at the end of the `OUT` that emptied it. An `OUT` straight after the emptying one stalls for a cycle, and `JMP !OSRE` treats an OSR that is about to be refilled as not empty.
 
 ## 0.88.0 (2026-08-28)
 

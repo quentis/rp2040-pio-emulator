@@ -44,12 +44,12 @@ from ..support import instruction_param
             expected_program_counter=0,  # Should stall when threshold reached
         ),
 
-        # Test OSR refills after last bits shifted out when FIFO is not empty
+        # Test OSR is empty, and not yet refilled, after the last bits are shifted out
         instruction_param(
             "out pins, 8",
             0x6008,
             State(pin_values=0xFFFF_FFFF, transmit_fifo=deque([0xAAAA_AAAA]), output_shift_register=ShiftRegister(0xFF, 24)),
-            State(pin_values=0x0000_00FF, transmit_fifo=deque(), output_shift_register=ShiftRegister(0xAAAA_AAAA, 0)),
+            State(pin_values=0x0000_00FF, transmit_fifo=deque([0xAAAA_AAAA]), output_shift_register=ShiftRegister(0, 32)),
         ),
 
         # Test PULL is a no-op while the OSR is full
@@ -89,3 +89,94 @@ def test_auto_pull(opcode: int, initial_state: State, expected_state: State):
     )
 
     assert new_state == expected_state
+
+
+def test_auto_pull_refills_the_osr_in_the_cycle_after_it_empties():
+    # The second OUT finds the OSR empty and stalls for the cycle in which it is refilled.
+    out_pins_8 = 0x6008
+
+    states = [
+        state
+        for _, state in emulate(
+            [out_pins_8, out_pins_8],
+            initial_state=State(
+                transmit_fifo=deque([0xAAAA_AAAA]),
+                output_shift_register=ShiftRegister(0xFF, 24),
+            ),
+            stop_when=clock_cycles_reached(3),
+            auto_pull=True,
+        )
+    ]
+
+    assert [(state.program_counter, state.output_shift_register) for state in states] == [
+        (1, ShiftRegister(0, 32)),
+        (1, ShiftRegister(0xAAAA_AAAA, 0)),
+        (0, ShiftRegister(0x00AA_AAAA, 8)),
+    ]
+    assert states[2].pin_values == 0xAA
+
+
+def test_auto_pull_refills_the_osr_during_a_cycle_that_does_not_use_it():
+    _, new_state = next(
+        emulate(
+            [Opcodes.nop(), Opcodes.nop()],
+            initial_state=State(transmit_fifo=deque([0xCC]), output_shift_register=ShiftRegister(0, 32)),
+            stop_when=clock_cycles_reached(1),
+            auto_pull=True,
+        )
+    )
+
+    assert new_state.output_shift_register == ShiftRegister(0xCC, 0)
+    assert new_state.transmit_fifo == deque()
+
+
+def test_auto_pull_does_not_refill_the_osr_a_second_time_when_the_instruction_pulls():
+    pull_block = 0x80A0
+
+    _, new_state = next(
+        emulate(
+            [pull_block, Opcodes.nop()],
+            initial_state=State(transmit_fifo=deque([1, 2]), output_shift_register=ShiftRegister(0, 32)),
+            stop_when=clock_cycles_reached(1),
+            auto_pull=True,
+        )
+    )
+
+    assert new_state.output_shift_register == ShiftRegister(1, 0)
+    assert new_state.transmit_fifo == deque([2])
+
+
+def test_jmp_not_osre_sees_an_osr_that_is_about_to_be_refilled_as_not_empty():
+    out_null_8 = 0x6068
+    jmp_not_osre_3 = 0x00E3
+
+    states = [
+        state
+        for _, state in emulate(
+            [out_null_8, jmp_not_osre_3, Opcodes.nop(), Opcodes.nop()],
+            initial_state=State(transmit_fifo=deque([1]), output_shift_register=ShiftRegister(0xFF, 0)),
+            stop_when=clock_cycles_reached(2),
+            auto_pull=True,
+            pull_threshold=8,
+        )
+    ]
+
+    assert [state.program_counter for state in states] == [1, 3]
+
+
+def test_jmp_not_osre_sees_an_empty_osr_as_empty_when_there_is_nothing_to_refill_it():
+    out_null_8 = 0x6068
+    jmp_not_osre_3 = 0x00E3
+
+    states = [
+        state
+        for _, state in emulate(
+            [out_null_8, jmp_not_osre_3, Opcodes.nop(), Opcodes.nop()],
+            initial_state=State(transmit_fifo=deque(), output_shift_register=ShiftRegister(0xFF, 0)),
+            stop_when=clock_cycles_reached(2),
+            auto_pull=True,
+            pull_threshold=8,
+        )
+    ]
+
+    assert [state.program_counter for state in states] == [1, 2]
