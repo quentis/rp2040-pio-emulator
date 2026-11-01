@@ -3,7 +3,10 @@
 Runs the same PIO scenarios on the emulator and on a real Pico 2, observed with an Analog
 Discovery (via [dwfpy](https://dwfpy.readthedocs.io)), and compares per-cycle pin traces.
 
-- `cases/*.json` - scenarios as data (program, state machine config, FIFO input, stimulus).
+- `cases/*.json` - scenarios as data: the program as PIO assembly source (wrap and side-set come
+  from its directives), state machine config, FIFO input and stimulus.
+- `assembler.py` - assembles a case with `adafruit_pioasm` (dev dependency) into opcodes plus the
+  settings implied by the directives.
 - `golden/*.json` - expected pin traces. `source` is `hardware` (captured from the Pico 2) or
   `hand-derived` (worked out from the instruction semantics, to be replaced by a capture).
 - `emulator.py` - runs a case with pioemu and produces a `Trace`.

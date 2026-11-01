@@ -26,6 +26,9 @@ CONFIG_KEYS = frozenset(
     }
 )
 
+# Settings that the assembler derives from the program's directives.
+PROGRAM_KEYS = frozenset({"side_set_count", "side_set_opt", "wrap_target", "wrap_top"})
+
 
 @dataclass(frozen=True)
 class Case:
@@ -37,8 +40,9 @@ class Case:
     ----------
     name : str
         Unique identifier; also the file stem of the case and its golden trace.
-    opcodes : list[int]
-        The PIO program.
+    program : list[str]
+        The PIO program as assembly source, one line per entry. Wrap and side-set settings
+        come from its directives (.wrap_target, .wrap, .side_set), not from `config`.
     cycles : int
         Number of state machine clock cycles to run and record.
     observed_pins : list[int]
@@ -55,7 +59,7 @@ class Case:
     """
 
     name: str
-    opcodes: list[int]
+    program: list[str]
     cycles: int
     observed_pins: list[int]
     description: str = ""
@@ -69,6 +73,13 @@ class Case:
         if unknown:
             raise ValueError(f"unknown config keys in case {self.name!r}: {sorted(unknown)}")
 
+        from_program = set(self.config) & PROGRAM_KEYS
+        if from_program:
+            raise ValueError(
+                f"case {self.name!r} sets {sorted(from_program)} in config; "
+                "use the program's directives instead"
+            )
+
         if self.cycles < 1:
             raise ValueError(f"case {self.name!r} must run at least one cycle")
 
@@ -77,6 +88,10 @@ class Case:
 
         if len(set(self.observed_pins)) != len(self.observed_pins):
             raise ValueError(f"case {self.name!r} observes a pin twice")
+
+    @property
+    def source(self) -> str:
+        return "\n".join(self.program) + "\n"
 
     @property
     def observed_mask(self) -> int:

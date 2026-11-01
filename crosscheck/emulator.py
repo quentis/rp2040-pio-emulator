@@ -2,6 +2,7 @@ from collections import deque
 
 from pioemu import State, clock_cycles_reached, emulate
 
+from .assembler import assemble
 from .case import Case
 from .trace import Trace
 
@@ -29,13 +30,16 @@ def run_on_emulator(case: Case) -> Trace:
         masked = pin_values & mask
         return sum(((masked >> pin) & 1) << i for i, pin in enumerate(pins))
 
+    program = assemble(case)
+
     run = emulate(
-        case.opcodes,
+        program.opcodes,
         stop_when=clock_cycles_reached(case.cycles),
         initial_state=State(
             pin_directions=case.pin_directions, transmit_fifo=deque(case.tx_fifo)
         ),
         input_source=_stimulus_input_source(case) if case.stimulus else None,
+        **program.config,
         **case.config,
     )
 

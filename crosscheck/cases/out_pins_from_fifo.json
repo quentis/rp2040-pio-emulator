@@ -1,7 +1,13 @@
 {
   "name": "out_pins_from_fifo",
   "description": "PULL a word from the TX FIFO and shift its low four bits (LSB first) out on one pin.",
-  "opcodes": [32928, 24577, 24577, 24577, 24577],
+  "program": [
+    "pull block",
+    "out pins, 1",
+    "out pins, 1",
+    "out pins, 1",
+    "out pins, 1"
+  ],
   "cycles": 5,
   "observed_pins": [0],
   "pin_directions": 1,

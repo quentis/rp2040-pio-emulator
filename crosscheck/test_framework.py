@@ -9,7 +9,7 @@ from .trace import Trace, compare, format_mismatches
 
 
 def make_case(**overrides) -> Case:
-    fields = dict(name="c", opcodes=[0xA042], cycles=3, observed_pins=[0])
+    fields = dict(name="c", program=["nop"], cycles=3, observed_pins=[0])
     fields.update(overrides)
     return Case(**fields)
 
@@ -23,10 +23,15 @@ class TestCase:
     def test_observed_mask(self):
         assert make_case(observed_pins=[0, 3, 31]).observed_mask == 0x8000_0009
 
+    def test_source_joins_program_lines(self):
+        assert make_case(program=["nop", "nop"]).source == "nop\nnop\n"
+
     @pytest.mark.parametrize(
         "overrides",
         [
             {"config": {"bogus": 1}},
+            {"config": {"wrap_top": 1}},
+            {"config": {"side_set_count": 1}},
             {"cycles": 0},
             {"observed_pins": []},
             {"observed_pins": [32]},
@@ -93,9 +98,9 @@ class TestGolden:
 
 class TestEmulatorRunner:
     def test_trace_has_requested_length_even_when_delay_overshoots(self):
-        # set pins, 1 [31] keeps the pin high far beyond the 4 requested cycles
+        # "set pins, 1 [31]" keeps the pin high far beyond the 4 requested cycles
         case = make_case(
-            opcodes=[0xE001 | (31 << 8)],
+            program=["set pins, 1 [31]"],
             cycles=4,
             pin_directions=1,
             config={"set_count": 1},
@@ -104,9 +109,9 @@ class TestEmulatorRunner:
         assert run_on_emulator(case).values == (1, 1, 1, 1)
 
     def test_observed_pins_are_packed_in_listed_order(self):
-        # set pins, 0b11 drives GPIO 2 and 3
+        # "set pins, 3" drives GPIO 2 and 3
         case = make_case(
-            opcodes=[0xE003],
+            program=["set pins, 3"],
             cycles=1,
             observed_pins=[3, 2],
             pin_directions=0b1100,
@@ -117,7 +122,7 @@ class TestEmulatorRunner:
 
     def test_stimulus_drives_input_pins_from_the_given_cycle(self):
         case = make_case(
-            opcodes=[0xA042],
+            program=["nop"],
             cycles=4,
             stimulus=[[2, 1]],
         )
