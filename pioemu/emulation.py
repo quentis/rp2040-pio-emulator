@@ -22,7 +22,6 @@ from .instruction import (
     Emulation,
     InInstruction,
     Instruction,
-    JmpInstruction,
     OutInstruction,
     ProgramCounterAdvance,
 )
@@ -223,6 +222,10 @@ def emulate(
                 stalled = False
             else:
                 stalled = True
+        else:
+            # An instruction whose condition is not met (PULL IFEMPTY, PUSH IFFULL, JMP) completes
+            # without doing anything; it does not stall.
+            stalled = False
 
         current_state = _apply_side_effects(
             instruction,
@@ -245,8 +248,8 @@ def emulate(
                 emulation, condition_met, wrap_target, wrap_top, current_state
             )
 
-            current_state = _apply_delay_value(
-                instruction, condition_met, delay_value, current_state
+            current_state = replace(
+                current_state, clock=current_state.clock + delay_value
             )
 
         current_state = replace(
@@ -304,18 +307,6 @@ def _advance_program_counter(
             return replace(state, program_counter=new_pc)
         case _:
             return state
-
-
-def _apply_delay_value(
-    instruction: Optional[Instruction],
-    condition_met: bool,
-    delay_value: int,
-    state: State,
-) -> State:
-    if isinstance(instruction, JmpInstruction) or condition_met:
-        return replace(state, clock=state.clock + delay_value)
-
-    return state
 
 
 def _apply_side_effects(

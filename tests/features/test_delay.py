@@ -15,7 +15,7 @@ from collections import deque
 
 import pytest
 
-from pioemu import State
+from pioemu import ShiftRegister, State
 
 from ..support import emulate_single_instruction
 
@@ -38,6 +38,10 @@ from ..support import emulate_single_instruction
         pytest.param(0x9F80, State(), 32, id="pull noblock [31]"),
         pytest.param(0x9FA0, State(transmit_fifo=deque([1])), 32, id="pull block [31]"),
         pytest.param(0x9FA0, State(transmit_fifo=deque()), 1, id="pull block [31] when fifo empty"),
+        pytest.param(0x83C0, State(output_shift_register=ShiftRegister(0xAA, 0)), 4, id="pull ifempty noblock [3] when OSR not empty"),
+        pytest.param(0x83C0, State(output_shift_register=ShiftRegister(0xAA, 32)), 4, id="pull ifempty noblock [3] when OSR empty"),
+        pytest.param(0x8340, State(), 4, id="push iffull noblock [3] when ISR not full"),
+        pytest.param(0x8340, State(input_shift_register=ShiftRegister(0xAA, 32)), 4, id="push iffull noblock [3] when ISR full"),
         pytest.param(0xE102, State(), 2, id="set pins, 2 [1]"),
         pytest.param(0xE03F, State(), 1, id="set x, 31"),
         pytest.param(0xFF40, State(), 32, id="set y, 0 [31]"),
