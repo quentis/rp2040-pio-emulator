@@ -125,11 +125,12 @@ class TestRunOnHardware:
         executed: list[str] = []
         case = make_case(cycles=2)
 
-        def capture(*, start, sample_count, **_):
+        def capture(*, start, sample_count, prefill, **_):
             executed.append("<capture begins>")
             start()
             executed.append("<capture ends>")
-            return [0b1 << 8] * sample_count
+            # marker (GP15) and case pin (GP8) rise together after the prefill
+            return [0] * prefill + [(1 << 15) | (1 << 8)] * (sample_count - prefill)
 
         trace = run_on_hardware(case, "COM7", open_repl=self.make_repl(executed), capture=capture)
 
@@ -162,7 +163,7 @@ class TestRunOnHardware:
 
         def capture(*, sample_count, prefill, **_):
             requested.update(sample_count=sample_count, prefill=prefill)
-            return [0] * sample_count
+            return [0] * prefill + [1 << 15] * (sample_count - prefill)
 
         run_on_hardware(
             make_case(cycles=10), "COM7", open_repl=self.make_repl([]), capture=capture
@@ -233,12 +234,13 @@ class TestDeviceRunner:
         assert case_sm.freq == marker_sm.freq == hardware.FREQ
         assert FakePio.removed == 1
 
-    def test_start_enables_both_state_machines_with_one_write(self, device_runner):
+    def test_start_enables_and_synchronises_both_state_machines_with_one_write(self, device_runner):
         module, fake_machine = device_runner
 
         module.start()
 
-        assert fake_machine.mem32[module.PIO0_CTRL] == 0b11
+        # SM_ENABLE bits 1:0 and CLKDIV_RESTART bits 9:8, written together
+        assert fake_machine.mem32[module.PIO0_CTRL] == 0b11 | (0b11 << 8)
 
     def test_start_keeps_other_enabled_state_machines(self, device_runner):
         module, fake_machine = device_runner
@@ -246,7 +248,7 @@ class TestDeviceRunner:
 
         module.start()
 
-        assert fake_machine.mem32[module.PIO0_CTRL] == 0b1011
+        assert fake_machine.mem32[module.PIO0_CTRL] == 0b1011 | (0b11 << 8)
 
     def test_stop_deactivates_the_state_machines(self, device_runner):
         module, _ = device_runner

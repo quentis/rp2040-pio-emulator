@@ -1,7 +1,7 @@
 """Unit tests of the cross-check framework itself; no hardware needed."""
 import pytest
 
-from .analog_discovery import samples_to_trace
+from .analog_discovery import find_rising_edge, samples_to_trace
 from .case import Case
 from .emulator import run_on_emulator
 from .golden import Golden, load_golden, save_golden
@@ -128,6 +128,22 @@ class TestEmulatorRunner:
         )
 
         assert run_on_emulator(case).values == (0, 0, 1, 1)
+
+
+class TestFindRisingEdge:
+    def test_finds_the_first_low_to_high_transition(self):
+        assert find_rising_edge([0, 0, 0b100, 0b100, 0, 0b100], 2) == 2
+
+    def test_ignores_other_channels(self):
+        assert find_rising_edge([0b001, 0b011, 0b111], 2) == 2
+
+    def test_a_pin_that_is_high_from_the_start_has_no_edge(self):
+        with pytest.raises(ValueError):
+            find_rising_edge([1, 1, 1], 0)
+
+    def test_fails_when_the_pin_never_rises(self):
+        with pytest.raises(ValueError):
+            find_rising_edge([0, 0, 0], 0)
 
 
 class TestSamplesToTrace:

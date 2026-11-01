@@ -3,8 +3,8 @@ Runs on the Pico 2 under MicroPython; sent to the board by crosscheck.hardware, 
 on the PC (except by the unit tests, which substitute fake `rp2` and `machine` modules).
 
 setup() takes a plain-data description of the state machines (built by crosscheck.hardware),
-start() enables the case's state machine and a marker state machine with one register write so
-that they begin on the same clock, and stop() disables them again.
+start() enables the case's state machine and a marker state machine, and restarts their clock
+dividers, with one register write so that they begin on the same clock; stop() disables them.
 """
 import machine
 import rp2
@@ -46,7 +46,10 @@ def setup(spec):
 
 
 def start():
-    machine.mem32[PIO0_CTRL] = machine.mem32[PIO0_CTRL] | (1 << CASE_SM) | (1 << MARKER_SM)
+    # One write enables both state machines and restarts both clock dividers (CTRL bits 11:8).
+    # The dividers free-run, so without the restart the two would start up to a cycle apart.
+    enable = (1 << CASE_SM) | (1 << MARKER_SM)
+    machine.mem32[PIO0_CTRL] = machine.mem32[PIO0_CTRL] | enable | (enable << 8)
 
 
 def stop():

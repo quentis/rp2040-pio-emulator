@@ -10,6 +10,15 @@ from typing import Callable, Sequence
 from .trace import Trace
 
 
+def find_rising_edge(samples: Sequence[int], pin: int) -> int:
+    """Index of the first sample in which `pin` is high after having been low."""
+    for index in range(1, len(samples)):
+        if (samples[index] >> pin) & 1 and not (samples[index - 1] >> pin) & 1:
+            return index
+
+    raise ValueError(f"no rising edge on channel {pin} in the capture")
+
+
 def samples_to_trace(
     samples: Sequence[int],
     *,

@@ -164,12 +164,13 @@ def run_on_hardware(
         finally:
             repl.exec("stop()")
 
-    # The marker edge and the effect of cycle 0 appear on the same clock edge.
+    # The marker edge and the effect of cycle 0 appear on the same clock edge. The edge is
+    # looked up in the data: the analyzer's trigger sample is not exactly at the prefill index.
     return analog_discovery.samples_to_trace(
         samples,
         sample_rate=SAMPLE_RATE,
         cycle_rate=FREQ,
-        first_cycle_sample=PREFILL,
+        first_cycle_sample=analog_discovery.find_rising_edge(samples, MARKER_PIN),
         cycles=case.cycles,
         pins=case.observed_pins,
     )
