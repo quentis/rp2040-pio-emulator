@@ -15,7 +15,7 @@
 - The delay cycles of a `PULL IFEMPTY` or `PUSH IFFULL` that does nothing are no longer skipped.
 - `JMP !OSRE` treats the OSR as empty once `pull_threshold` bits have been shifted out, instead of only after 32.
 - `PULL` is a no-op while the OSR is full and `auto_pull` is enabled, instead of replacing the OSR contents.
-- Autopull refills the OSR in the background like the hardware: during the cycle after it empties, or during any cycle that does not write it, rather than at the end of the `OUT` that emptied it. An `OUT` straight after the emptying one stalls for a cycle, and `JMP !OSRE` treats an OSR that is about to be refilled as not empty.
+- Autopull refills the OSR like the hardware: in the same cycle as the `OUT` that brings the shift count exactly to the threshold, so streaming data loses no cycle, and otherwise in the first cycle in which it finds the OSR empty, whatever that cycle executes. An `OUT` stalls in that cycle.
 - Autopush stalls the `IN` that reaches the push threshold when the RX FIFO is full, instead of the `IN` after it.
 - `PULL IFEMPTY` treats the OSR as empty once `pull_threshold` bits have been shifted out, instead of only after 32.
 - `PUSH IFFULL` treats the ISR as full once `push_threshold` bits have been shifted in, instead of only after 32.

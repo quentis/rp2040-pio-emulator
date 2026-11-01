@@ -200,8 +200,9 @@ def emulate(
                 pin_values=masked_values | masked_input,
             )
 
-        # With autopull the hardware refills an empty OSR in the background, during the cycle
-        # that follows the one in which it became empty (or the first cycle, if it starts empty).
+        # With autopull the hardware refills an OSR that is already empty in the background, during
+        # the first cycle it finds it so; an OUT stalls in that cycle. An OUT that brings the shift
+        # count exactly to the threshold is followed by the refill in the same cycle (see below).
         output_shift_register_at_start = current_state.output_shift_register
         refill_osr = (
             auto_pull
@@ -277,14 +278,20 @@ def emulate(
             push_threshold,
         )
 
-        # The refill does not happen if the instruction wrote the OSR itself, e.g. a PULL.
+        # The background refill does not happen if the instruction wrote the OSR itself, e.g. a PULL.
         if refill_osr and current_state.output_shift_register == output_shift_register_at_start:
-            updated_transmit_fifo = current_state.transmit_fifo.copy()
-            current_state = replace(
-                current_state,
-                transmit_fifo=updated_transmit_fifo,
-                output_shift_register=ShiftRegister(updated_transmit_fifo.popleft(), 0),
-            )
+            current_state = _refill_output_shift_register(current_state)
+        elif (
+            auto_pull
+            and isinstance(instruction, OutInstruction)
+            and not stalled
+            and current_state.output_shift_register.counter == pull_threshold
+            and current_state.transmit_fifo
+        ):
+            # The shift count equals the threshold (the count saturates at 32): no cycle is lost,
+            # which is what lets autopull stream words. If an OUT went past a threshold below 32
+            # the refill happens in the next cycle instead, as above.
+            current_state = _refill_output_shift_register(current_state)
 
         # TODO: Check that the following still applies when an instruction is stalled
         if apply_side_set:
@@ -361,6 +368,16 @@ def _advance_program_counter(
             return replace(state, program_counter=new_pc)
         case _:
             return state
+
+
+def _refill_output_shift_register(state: State) -> State:
+    updated_transmit_fifo = state.transmit_fifo.copy()
+
+    return replace(
+        state,
+        transmit_fifo=updated_transmit_fifo,
+        output_shift_register=ShiftRegister(updated_transmit_fifo.popleft(), 0),
+    )
 
 
 def _apply_side_effects(

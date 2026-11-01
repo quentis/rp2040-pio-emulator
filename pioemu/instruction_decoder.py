@@ -167,7 +167,7 @@ class InstructionDecoder:
             y_register_not_equal_to_zero,
             x_register_not_equal_to_y_register,
             partial(gpio_high, jmp_pin),
-            negate(self._output_shift_register_empty),
+            negate(partial(output_shift_register_threshold_reached, pull_threshold)),
         ]
 
         self.in_sources: List[Callable[[State], int] | None] = [
@@ -229,17 +229,6 @@ class InstructionDecoder:
             None,
             None,
         ]
-
-    def _output_shift_register_empty(self, state: State) -> bool:
-        """
-        Tells whether JMP !OSRE sees the OSR as empty: the threshold has been reached and,
-        with autopull, there is nothing in the FIFO that is about to refill it.
-        """
-
-        if not output_shift_register_threshold_reached(self._pull_threshold, state):
-            return False
-
-        return not (self._auto_pull and state.transmit_fifo)
 
     def create_emulation(
         self, instruction: Optional[Instruction]
