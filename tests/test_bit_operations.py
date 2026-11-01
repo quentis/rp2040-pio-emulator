@@ -26,6 +26,10 @@ from pioemu.bit_operations import rotate_right_32, update_bits_32
         pytest.param(0xFFFF_FFFF, 0x0000_0000, 11, 20, 0x8000_07FF),
         pytest.param(0x0000_0000, 0xFFFF_FFFF, 31, 1, 0x8000_0000),
         pytest.param(0xDEAD_BEEF, 0x0000_F00D, 16, 16, 0xF00D_BEEF),
+        pytest.param(0x0000_0000, 0xF, 30, 4, 0xC000_0003, id="wraps after bit 31"),
+        pytest.param(0xFFFF_FFFF, 0x0, 30, 4, 0x3FFF_FFFC, id="clears bits across the wrap"),
+        pytest.param(0x0000_0000, 0xFFFF_FFFF, 1, 32, 0xFFFF_FFFF, id="a full width range wraps"),
+        pytest.param(0x0000_0000, 0b101, 31, 3, 0x8000_0002, id="keeps the order of the bits"),
     ],
 )
 def test_update_bits_32(

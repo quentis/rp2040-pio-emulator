@@ -65,8 +65,6 @@ This software is under development and currently has limitations - the notable o
 
 1. Not all of the available instructions are supported - please refer to the table above.
 
-1. Pin-sets do not wrap after GPIO 31.
-
 1. No direct support for the concurrent running of multiple PIO programs;
    a single State Machine is emulated and not an entire PIO block.
 

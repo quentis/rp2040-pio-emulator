@@ -259,3 +259,17 @@ def test_out_exec_of_an_instruction_that_stalls_holds_the_state_machine():
     assert [state.program_counter for state in states] == [1, 1, 1, 1]
     assert [state.exec_opcode for state in states] == [wait_1_irq_0] * 4
     assert all(state.pin_values == 0 for state in states)
+
+
+def test_out_pins_wraps_after_gpio_31():
+    out_pins_4 = 0x6004
+
+    _, new_state = emulate_single_instruction(
+        out_pins_4,
+        initial_state=State(output_shift_register=ShiftRegister(0b0110, 0)),
+        out_base=30,
+        out_count=4,
+    )
+
+    assert new_state.pin_values == 0x8000_0001
+

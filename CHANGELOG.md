@@ -20,6 +20,7 @@
 - `PULL IFEMPTY` treats the OSR as empty once `pull_threshold` bits have been shifted out, instead of only after 32.
 - `PUSH IFFULL` treats the ISR as full once `push_threshold` bits have been shifted in, instead of only after 32.
 - `WAIT PIN` is relative to `in_base` and wraps after GPIO 31; `WAIT GPIO` stays absolute.
+- Pin ranges of `OUT`, `SET`, `MOV PINS`, side-set and the pin directions wrap around after GPIO 31 instead of being cut off.
 
 ## 0.88.0 (2026-08-28)
 

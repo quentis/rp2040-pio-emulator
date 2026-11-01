@@ -114,3 +114,20 @@ def test_set_to_pin_directions(
     )
 
     assert replace(new_state, clock=0) == expected_state
+
+
+def test_set_pins_wraps_after_gpio_31():
+    set_pins_11 = 0xE00B  # set pins, 0b01011
+
+    _, new_state = emulate_single_instruction(set_pins_11, set_base=30, set_count=4)
+
+    assert new_state.pin_values == 0xC000_0002  # GPIO 30, 31 and 1
+
+
+def test_set_pindirs_wraps_after_gpio_31():
+    set_pindirs_5 = 0xE085  # set pindirs, 0b00101
+
+    _, new_state = emulate_single_instruction(set_pindirs_5, set_base=31, set_count=3)
+
+    assert new_state.pin_directions == 0x8000_0002  # GPIO 31 and 1
+

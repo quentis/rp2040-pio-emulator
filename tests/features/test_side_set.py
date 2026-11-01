@@ -90,3 +90,20 @@ def test_opt_side_set_changes_pin_values(
     )
 
     assert new_state.pin_values == expected_pin_values
+
+
+def test_side_set_wraps_after_gpio_31():
+    opcode = 0xA042 | (0b0101 << 9)  # nop side 0b0101 (one bit is left for the delay)
+
+    _, new_state = next(
+        emulate(
+            [opcode],
+            initial_state=State(pin_values=0x0000_0000),
+            stop_when=clock_cycles_reached(1),
+            side_set_base=30,
+            side_set_count=4,
+        )
+    )
+
+    assert new_state.pin_values == 0x4000_0001
+

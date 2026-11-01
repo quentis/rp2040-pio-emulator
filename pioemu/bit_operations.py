@@ -14,13 +14,19 @@
 
 
 def update_bits_32(value, new_value, bit_position=0, bit_count=32):
-    """Updates an existing value with up to 32 bits from another value."""
+    """
+    Updates an existing value with up to 32 bits from another value.
+
+    A range that extends beyond bit 31 wraps around to bit 0, like pin ranges do.
+    """
 
     bit_mask = ((1 << bit_count) - 1) << bit_position
+    new_bits = (new_value << bit_position) & bit_mask
 
-    return (
-        (value & ~bit_mask) | ((new_value << bit_position) & bit_mask)
-    ) & 0xFFFF_FFFF
+    wrapped_mask = (bit_mask & 0xFFFF_FFFF) | (bit_mask >> 32)
+    wrapped_bits = (new_bits & 0xFFFF_FFFF) | (new_bits >> 32)
+
+    return ((value & ~wrapped_mask) | wrapped_bits) & 0xFFFF_FFFF
 
 
 def reverse_bits_32(value):
