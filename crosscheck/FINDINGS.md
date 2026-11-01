@@ -4,15 +4,20 @@ Every case in `cases/` was run on a Raspberry Pi Pico 2 (RP2350, MicroPython 1.2
 at 5 MHz, observed with an Analog Discovery at 50 MHz) and the traces are the golden files. The
 numbers in the first column refer to the probe IDs of
 [docs/pio_sim-cross-check.md](../docs/pio_sim-cross-check.md), which found these by reading the
-code; the hardware confirms each of them and adds three more. Nothing was fixed: the cases that
-expose a difference carry `known_emulator_difference` and the golden test expects them to fail
-(strictly, so the test fails once the emulator is fixed and the note has to go).
+code; the hardware confirmed each of them and added three more. All of them have since been
+fixed in pioemu, each in its own commit (see the changelog). While a difference was open its case
+carried `known_emulator_difference` and the golden test expected it to fail, strictly, so that the
+test failed once the emulator was fixed and the note had to go; no case carries one now.
+
+Fixing them also raised questions that the datasheet leaves open and that the hardware answered
+(`pull_with_autopull_osr_partly_shifted`, `jmp_not_osre_right_after_autopull_crossing`, the
+`out_exec_*` cases, `mov_x_status_*`).
 
 The hardware is an RP2350. The datasheet behaviour of the PIO is the same as the RP2040's in
 every case below as far as the RP2040 datasheet says, but a difference between the two chips
 would not show up here.
 
-## Where pioemu differs from the hardware
+## Where pioemu differed from the hardware (all fixed)
 
 | ID  | Case | Hardware | pioemu |
 | :-- | :--- | :------- | :----- |

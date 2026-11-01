@@ -22,9 +22,10 @@ Discovery (via [dwfpy](https://dwfpy.readthedocs.io)), and compares per-cycle pi
 - `capture_golden.py` - checks cases on hardware against their golden traces, or records them.
 - `pico.py`, `firmware.py`, `flash_micropython.py` - serial link, firmware check, flashing.
 
-A case whose golden trace pioemu does not reproduce carries `known_emulator_difference` with the
-reason; the golden test then expects it to fail, strictly. [FINDINGS.md](FINDINGS.md) lists
-these differences and what the cases cover.
+A case whose golden trace pioemu does not reproduce can carry `known_emulator_difference` with the
+reason; the golden test then expects it to fail, strictly. No case needs it at the moment.
+[FINDINGS.md](FINDINGS.md) lists the differences the cases found, all since fixed, and what
+they cover.
 
 Cases that run on hardware must observe and drive GP8 - GP14 (see HARDWARE.md), configure their
 OUT/SET/side-set pin groups explicitly, and use no stimulus yet.
