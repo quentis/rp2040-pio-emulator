@@ -4,10 +4,12 @@ Every case in `cases/` was run on a Raspberry Pi Pico 2 (RP2350, MicroPython 1.2
 at 5 MHz, observed with an Analog Discovery at 50 MHz) and the traces are the golden files. The
 numbers in the first column refer to the probe IDs of
 [docs/pio_sim-cross-check.md](../docs/pio_sim-cross-check.md), which found these by reading the
-code; the hardware confirmed each of them and added three more. All of them have since been
-fixed in pioemu, each in its own commit (see the changelog). While a difference was open its case
-carried `known_emulator_difference` and the golden test expected it to fail, strictly, so that the
-test failed once the emulator was fixed and the note had to go; no case carries one now.
+code; the hardware confirmed each of them and added three more. All of them were fixed in pioemu,
+each in its own commit (see the changelog). While a difference is open its case carries
+`known_emulator_difference` and the golden test expects it to fail, strictly, so that the test
+fails once the emulator is fixed and the note has to go; no case carries one now. The
+feature-interplay cases added later showed that the fix for D10 had modelled the autopull refill
+too late; that was corrected as well (see "A correction" below).
 
 Fixing them also raised questions that the datasheet leaves open and that the hardware answered
 (`pull_with_autopull_osr_partly_shifted`, `jmp_not_osre_right_after_autopull_crossing`, the
@@ -33,6 +35,23 @@ would not show up here.
 | new | `wrap_top_at_address_zero` | a wrap range ending at address 0 keeps the program on that instruction | continues with the next instruction: `emulate()` reads `wrap_top=0` as "not given" |
 | new | `autopush_stalls_when_rx_full` | the `in` that reaches the threshold stalls on a full RX FIFO: the fifth never completes | the fifth completes, the sixth stalls |
 | new | `autopull_across_threshold` | the `out` that crosses the autopull threshold is followed by one extra cycle for the refill | no extra cycle |
+
+## A correction: when autopull refills the OSR
+
+The fix for D10 made pioemu refill the OSR in the cycle after the `OUT` that emptied it. The
+interplay cases showed that the hardware refills it in the *same* cycle when that `OUT` brings the
+shift count exactly to the threshold, which is the usual way of streaming data. This is the rule
+pioemu follows now:
+
+| `OUT` leaves the shift count ... | Hardware and pioemu |
+| :------------------------------- | :------------------ |
+| equal to the threshold (also 32 at the default threshold, where the count saturates) | refill in the same cycle: the next `OUT` follows at once |
+| above the threshold, which is below 32 | the next cycle is a refill cycle: an `OUT` stalls, a `JMP !OSRE` sees an empty OSR |
+
+Six cases pin it down (`autopull_loop_stalls_once_per_refill`, `autopull_exact_threshold_streams_without_a_stall`,
+`autopull_full_words_stream_without_a_stall`, `autopull_halves_of_a_word_stream_without_a_stall`,
+`autopull_over_shift_at_the_full_threshold`, `autopull_over_shift_then_jmp_not_osre`); others, such as
+`autopull_across_threshold` and `jmp_not_osre_right_after_autopull_crossing`, passed under both models.
 
 ## Where pioemu agrees with the hardware
 

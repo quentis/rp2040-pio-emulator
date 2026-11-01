@@ -1,0 +1,18 @@
+{
+  "name": "jmp_pin_stays_absolute_with_in_base",
+  "description": "JMP PIN uses the absolute pin chosen by JMP_PIN and ignores IN_BASE (datasheet 3.4.2.2): with IN_BASE 4 and JMP_PIN 2 the output follows GPIO 2.",
+  "program": [
+    "loop:",
+    "jmp pin high",
+    "set pins, 0",
+    "jmp loop",
+    "high:",
+    "set pins, 1",
+    "jmp loop"
+  ],
+  "cycles": 22,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 1, "jmp_pin": 2, "in_base": 4},
+  "stimulus": [[5, 4], [12, 0]]
+}

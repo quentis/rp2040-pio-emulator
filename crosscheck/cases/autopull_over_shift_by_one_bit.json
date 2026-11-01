@@ -1,0 +1,12 @@
+{
+  "name": "autopull_over_shift_by_one_bit",
+  "description": "An OUT that asks for more bits than remain, here one more (3 bits when 2 remain, threshold 8), empties the OSR past the threshold; the cycle after it shows whether the refill costs a cycle.",
+  "program": [
+    "out pins, 3"
+  ],
+  "cycles": 16,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true, "pull_threshold": 8},
+  "tx_fifo": [181, 74]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "autopull_over_shift_then_jmp_not_osre",
+  "description": "A JMP !OSRE in the cycle after an OUT that shifted past the threshold (5 + 5 bits, threshold 8): GP8 rises if it saw the OSR as empty, GP9 if it saw it refilled (datasheet 3.4.2.2, 3.5.4.2).",
+  "program": [
+    "out null, 5",
+    "out null, 5",
+    "jmp !osre full",
+    "set pins, 1",
+    "jmp end",
+    "full:",
+    "set pins, 2",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true, "pull_threshold": 8, "set_base": 8, "set_count": 2},
+  "tx_fifo": [1, 2]
+}

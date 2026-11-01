@@ -1,0 +1,15 @@
+{
+  "name": "out_exec_of_irq_releases_a_wait",
+  "description": "An IRQ executed through OUT EXEC raises the flag (datasheet 3.4.5.2, 3.4.9.2): 0xC000 is 'irq 0', so the WAIT that follows passes and the SET runs.",
+  "program": [
+    "pull block",
+    "out exec, 16",
+    "wait 1 irq 0",
+    "set pins, 1"
+  ],
+  "cycles": 12,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 1},
+  "tx_fifo": [49152]
+}

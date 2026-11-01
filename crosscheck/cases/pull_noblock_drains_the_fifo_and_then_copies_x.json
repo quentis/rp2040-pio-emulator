@@ -1,0 +1,20 @@
+{
+  "name": "pull_noblock_drains_the_fifo_and_then_copies_x",
+  "description": "PULL NOBLOCK takes the queued words in order and then copies X (datasheet 3.4.7.2): 1, 2 and then 7 reach the pins.",
+  "program": [
+    "set x, 7",
+    "pull noblock",
+    "out pins, 7",
+    "pull noblock",
+    "out pins, 7",
+    "pull noblock",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 16,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7},
+  "tx_fifo": [1, 2]
+}

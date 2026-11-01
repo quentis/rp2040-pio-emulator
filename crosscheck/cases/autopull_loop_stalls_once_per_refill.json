@@ -1,0 +1,12 @@
+{
+  "name": "autopull_loop_stalls_once_per_refill",
+  "description": "A single 'out pins, 1' in a loop with autopull and a threshold of four: every fourth bit is followed by a refill cycle (datasheet 3.5.4.2), shown by the pins staying put.",
+  "program": [
+    "out pins, 1"
+  ],
+  "cycles": 24,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 1, "auto_pull": true, "pull_threshold": 4},
+  "tx_fifo": [10, 5]
+}

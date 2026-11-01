@@ -1,0 +1,20 @@
+{
+  "name": "side_set_with_a_conditional_jump_and_delay",
+  "description": "The side-set and the delay of a JMP apply whether or not it is taken (datasheet 3.4.2.2, 3.5.1): X differs from Y, so 'jmp x!=y' branches with side 1 and two delay cycles.",
+  "program": [
+    ".side_set 1",
+    "set x, 3 side 0",
+    "set y, 4 side 0",
+    "jmp x!=y differ side 1 [2]",
+    "set pins, 1 side 0",
+    "jmp end side 0",
+    "differ:",
+    "set pins, 2 side 1",
+    "end:",
+    "jmp end side 0"
+  ],
+  "cycles": 16,
+  "observed_pins": [8, 9, 10],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 2, "side_set_base": 10}
+}

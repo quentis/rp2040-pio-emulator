@@ -1,0 +1,12 @@
+{
+  "name": "autopull_exact_threshold_with_nothing_left_to_pull",
+  "description": "When the exact-fit OUT takes the last word, the next OUT waits for more data (datasheet 3.5.4.2): the pins keep the last value.",
+  "program": [
+    "out pins, 7"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true, "pull_threshold": 7},
+  "tx_fifo": [42]
+}

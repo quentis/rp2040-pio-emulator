@@ -1,0 +1,15 @@
+{
+  "name": "wait_pin_with_in_base_follows_the_stimulus",
+  "description": "With IN_BASE 4 'wait 1 pin 0' waits on GPIO 4, driven from outside (datasheet 3.4.3.2): the output follows GPIO 4, high from cycle 6 to cycle 11.",
+  "program": [
+    "wait 1 pin 0",
+    "set pins, 1",
+    "wait 0 pin 0",
+    "set pins, 0"
+  ],
+  "cycles": 18,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 1, "in_base": 4},
+  "stimulus": [[6, 16], [11, 0]]
+}

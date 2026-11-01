@@ -1,0 +1,15 @@
+{
+  "name": "side_set_is_applied_while_a_wait_stalls_and_the_delay_follows",
+  "description": "A side-set takes effect on the first cycle of an instruction even if it stalls, and the delay only starts when the stall ends (datasheet 3.5.1, 3.2.4): 'wait 1 pin 0 side 1 [2]' with GPIO 0 rising at cycle 7.",
+  "program": [
+    ".side_set 1",
+    "nop side 0",
+    "wait 1 pin 0 side 1 [2]",
+    "nop side 0"
+  ],
+  "cycles": 20,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"side_set_base": 8},
+  "stimulus": [[7, 1]]
+}

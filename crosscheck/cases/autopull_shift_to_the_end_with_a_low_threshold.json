@@ -1,0 +1,12 @@
+{
+  "name": "autopull_shift_to_the_end_with_a_low_threshold",
+  "description": "A threshold of 8 and an OUT of 32 bits takes the shift count straight to its maximum, 32, which is more than the threshold (datasheet 3.5.4.2): the pins show whether the refill costs a cycle then.",
+  "program": [
+    "out pins, 32"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true, "pull_threshold": 8},
+  "tx_fifo": [1, 2, 3, 4]
+}

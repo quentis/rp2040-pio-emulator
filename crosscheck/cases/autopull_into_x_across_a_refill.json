@@ -1,0 +1,21 @@
+{
+  "name": "autopull_into_x_across_a_refill",
+  "description": "OUT X with autopull takes consecutive fields across the boundary between two words (datasheet 3.5.4.2); each nibble reaches the pins through MOV PINS.",
+  "program": [
+    "out x, 4",
+    "mov pins, x",
+    "out x, 4",
+    "mov pins, x",
+    "out x, 4",
+    "mov pins, x",
+    "out x, 4",
+    "mov pins, x",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 24,
+  "observed_pins": [8, 9, 10, 11],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 4, "auto_pull": true, "pull_threshold": 8},
+  "tx_fifo": [165, 60]
+}

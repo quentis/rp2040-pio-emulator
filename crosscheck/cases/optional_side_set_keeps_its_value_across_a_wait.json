@@ -1,0 +1,16 @@
+{
+  "name": "optional_side_set_keeps_its_value_across_a_wait",
+  "description": "With an optional side-set an instruction without 'side' leaves the pin alone, also one that stalls (datasheet 3.5.1): the pin set by the first NOP stays high until the last NOP.",
+  "program": [
+    ".side_set 1 opt",
+    "nop side 1",
+    "wait 1 pin 0",
+    "nop",
+    "nop side 0"
+  ],
+  "cycles": 20,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"side_set_base": 8},
+  "stimulus": [[7, 1]]
+}

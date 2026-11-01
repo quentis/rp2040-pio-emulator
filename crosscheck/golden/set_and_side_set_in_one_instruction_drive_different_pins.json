@@ -1,0 +1,6 @@
+{
+  "case": "set_and_side_set_in_one_instruction_drive_different_pins",
+  "source": "hardware",
+  "notes": "Captured on Raspberry Pi Pico2 with RP2350, MicroPython 1.29.0; state machine at 5000000 Hz, analyzer at 50000000 Hz.",
+  "trace": {"observed_pins": [8, 9], "values": [3, 2, 1, 0, 3, 2, 1, 0, 3, 2, 1, 0]}
+}

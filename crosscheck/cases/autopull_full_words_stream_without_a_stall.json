@@ -1,0 +1,12 @@
+{
+  "name": "autopull_full_words_stream_without_a_stall",
+  "description": "With the default threshold of 32, 'out pins, 32' in a loop outputs a new word every cycle (datasheet 3.5.4.2).",
+  "program": [
+    "out pins, 32"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true},
+  "tx_fifo": [1, 2, 3, 4]
+}

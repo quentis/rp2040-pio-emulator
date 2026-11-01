@@ -1,0 +1,14 @@
+{
+  "name": "out_exec_with_autopull_across_the_refill",
+  "description": "Two OUT EXECs with autopull and a threshold of 16: the second executes the second word, which only arrives after the refill cycle that coincides with the first executed instruction (datasheet 3.4.5.2, 3.5.4.2).",
+  "program": [
+    "out exec, 16",
+    "out exec, 16",
+    "set pins, 3"
+  ],
+  "cycles": 16,
+  "observed_pins": [8, 9],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 2, "auto_pull": true, "pull_threshold": 16},
+  "tx_fifo": [57345, 57346]
+}

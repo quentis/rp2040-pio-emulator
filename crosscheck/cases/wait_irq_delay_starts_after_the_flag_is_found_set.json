@@ -1,0 +1,13 @@
+{
+  "name": "wait_irq_delay_starts_after_the_flag_is_found_set",
+  "description": "The delay of a WAIT 1 IRQ is counted after the wait passes (datasheet 3.4.3.2, 3.2.4): the flag is already set, so the SET follows after the three delay cycles.",
+  "program": [
+    "irq 0",
+    "wait 1 irq 0 [3]",
+    "set pins, 1"
+  ],
+  "cycles": 12,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 1}
+}

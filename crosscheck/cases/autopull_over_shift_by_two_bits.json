@@ -1,0 +1,12 @@
+{
+  "name": "autopull_over_shift_by_two_bits",
+  "description": "The same with two bits too many: 5 bits twice with a threshold of 8.",
+  "program": [
+    "out pins, 5"
+  ],
+  "cycles": 16,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true, "pull_threshold": 8},
+  "tx_fifo": [181, 74]
+}

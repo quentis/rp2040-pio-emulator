@@ -1,0 +1,13 @@
+{
+  "name": "wait_with_delay_counts_the_delay_after_the_wait_passes",
+  "description": "The delay of a WAIT starts once the wait is satisfied, not when it is first executed (datasheet 3.2.4): GPIO 0 goes high at cycle 6, the wait passes there and the SET follows after its three delay cycles.",
+  "program": [
+    "wait 1 pin 0 [3]",
+    "set pins, 1"
+  ],
+  "cycles": 16,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 1},
+  "stimulus": [[6, 1]]
+}

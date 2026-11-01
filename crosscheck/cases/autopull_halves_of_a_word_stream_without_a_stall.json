@@ -1,0 +1,12 @@
+{
+  "name": "autopull_halves_of_a_word_stream_without_a_stall",
+  "description": "Two 'out pins, 16' empty the OSR exactly, so the words follow each other without a stall (datasheet 3.5.4.2): 1, 2, 3, 4.",
+  "program": [
+    "out pins, 16"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true},
+  "tx_fifo": [131073, 262147]
+}

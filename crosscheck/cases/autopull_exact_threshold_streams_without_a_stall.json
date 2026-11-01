@@ -1,0 +1,12 @@
+{
+  "name": "autopull_exact_threshold_streams_without_a_stall",
+  "description": "When an OUT empties the OSR exactly, the refill costs no cycle (datasheet 3.5.4.2): 'out pins, 7' in a loop with a threshold of seven shows 42, 21 and 10 in consecutive cycles after the first refill.",
+  "program": [
+    "out pins, 7"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true, "pull_threshold": 7},
+  "tx_fifo": [42, 21, 10]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "pull_ifempty_in_the_refill_cycle_of_autopull",
+  "description": "A PULL IFEMPTY executed in the cycle in which autopull would refill the OSR: the pins show which word the OSR ends up with.",
+  "program": [
+    "out null, 8",
+    "pull ifempty noblock",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true, "pull_threshold": 8},
+  "tx_fifo": [1, 2, 3]
+}

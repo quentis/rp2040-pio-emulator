@@ -1,0 +1,20 @@
+{
+  "name": "autopush_then_explicit_push_raise_the_rx_level",
+  "description": "An autopush and an explicit PUSH each add a word to the RX FIFO (datasheet 3.5.4.1, 3.4.6.2): with STATUS_N 2 on the RX level the status is all ones after the first and zero after the second.",
+  "program": [
+    "in null, 8",
+    "mov x, status",
+    "mov osr, x",
+    "out pins, 7",
+    "push noblock",
+    "mov x, status",
+    "mov osr, x",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 20,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_push": true, "push_threshold": 8, "status_sel": 1, "status_n": 2}
+}

@@ -1,0 +1,6 @@
+{
+  "case": "autopull_into_x_across_a_refill",
+  "source": "hardware",
+  "notes": "Captured on Raspberry Pi Pico2 with RP2350, MicroPython 1.29.0; state machine at 5000000 Hz, analyzer at 50000000 Hz.",
+  "trace": {"observed_pins": [8, 9, 10, 11], "values": [0, 0, 5, 5, 10, 10, 12, 12, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]}
+}

@@ -1,0 +1,17 @@
+{
+  "name": "in_pins_sees_several_pins_change_together",
+  "description": "Several inputs changing in the same cycle are read consistently (datasheet 3.4.4.2): GPIO 0 and 2 rise together at cycle 3, the WAIT on GPIO 0 passes and IN reads 0b0101.",
+  "program": [
+    "wait 1 pin 0",
+    "in pins, 4",
+    "mov osr, isr",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "shift_isr_right": false},
+  "stimulus": [[3, 5]]
+}

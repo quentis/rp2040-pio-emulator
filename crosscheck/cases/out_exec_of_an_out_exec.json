@@ -1,0 +1,14 @@
+{
+  "name": "out_exec_of_an_out_exec",
+  "description": "An executed instruction can itself be an OUT EXEC: the word 0xE00160F0 executes 'out exec, 16', which shifts out 0xE001 and executes that ('set pins, 1').",
+  "program": [
+    "pull block",
+    "out exec, 16",
+    "set pins, 3"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 2},
+  "tx_fifo": [3758186736]
+}

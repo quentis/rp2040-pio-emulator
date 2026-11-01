@@ -1,0 +1,12 @@
+{
+  "name": "autopull_over_shift_at_the_full_threshold",
+  "description": "With the default threshold of 32 the shift count saturates, so an over-shifting OUT looks like an exact one to the counter: 'out pins, 20' twice takes 40 bits from a 32-bit word (datasheet 3.5.4.2); the pins show whether the refill costs a cycle.",
+  "program": [
+    "out pins, 20"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "auto_pull": true},
+  "tx_fifo": [3735928559, 305419896]
+}

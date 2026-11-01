@@ -1,0 +1,18 @@
+{
+  "name": "jmp_pin_delay_applies_to_both_outcomes",
+  "description": "A JMP PIN waits out its delay whether the jump is taken or not (datasheet 3.4.2.2, 3.2.4): the output follows GPIO 0 with two delay cycles per branch.",
+  "program": [
+    "loop:",
+    "jmp pin high [2]",
+    "set pins, 0",
+    "jmp loop",
+    "high:",
+    "set pins, 1",
+    "jmp loop"
+  ],
+  "cycles": 30,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 1, "jmp_pin": 0},
+  "stimulus": [[7, 1], [16, 0]]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "jmp_decrement_at_the_wrap_top_meets_the_wrap_target",
+  "description": "A taken JMP X-- jumps to its target, a JMP X-- that is not taken falls through to the wrap target (datasheet 3.5.2): the pin pulses once per round, and the first round is shorter.",
+  "program": [
+    "set x, 2",
+    ".wrap_target",
+    "set pins, 1",
+    "mid:",
+    "set pins, 0",
+    "jmp x-- mid",
+    ".wrap"
+  ],
+  "cycles": 24,
+  "observed_pins": [8],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 1}
+}

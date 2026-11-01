@@ -1,0 +1,15 @@
+{
+  "name": "set_and_side_set_in_one_instruction_drive_different_pins",
+  "description": "SET and a side-set in the same instruction write different pins in the same cycle (datasheet 3.5.1): GP8 from SET, GP9 from the side-set.",
+  "program": [
+    ".side_set 1",
+    "set pins, 1 side 1",
+    "set pins, 0 side 1",
+    "set pins, 1 side 0",
+    "set pins, 0 side 0"
+  ],
+  "cycles": 12,
+  "observed_pins": [8, 9],
+  "pin_directions": 32512,
+  "config": {"set_base": 8, "set_count": 1, "side_set_base": 9}
+}

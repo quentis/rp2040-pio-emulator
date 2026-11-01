@@ -1,0 +1,17 @@
+{
+  "name": "in_shifting_right_fills_from_the_top",
+  "description": "IN with a right-shifting ISR builds the value from the top (datasheet 3.4.4.2): two fields of 21 occupy bits 31 - 22, whose top seven bits are read out of the OSR, shifting left.",
+  "program": [
+    "set x, 21",
+    "in x, 5",
+    "in x, 5",
+    "mov osr, isr",
+    "out pins, 7",
+    "end:",
+    "jmp end"
+  ],
+  "cycles": 14,
+  "observed_pins": [8, 9, 10, 11, 12, 13, 14],
+  "pin_directions": 32512,
+  "config": {"out_base": 8, "out_count": 7, "shift_osr_right": false}
+}
